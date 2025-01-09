@@ -1,0 +1,46 @@
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 300px;
+  margin: auto;
+  align-items: center;
+}
+
+input, button {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  cursor: pointer;
+  width: 50%;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.login-button {
+  margin-top: 20px;
+  background-color: #262c7c;
+  color: white;
+  width: 50%;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background-color: hsl(261, 42%, 43%);
+}
+
+.register-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 90vh;
+}

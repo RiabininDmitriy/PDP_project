@@ -10,4 +10,6 @@ export class User {
 
   @Column()
   password: string;
+
+  //add annotation for the username to be index
 }

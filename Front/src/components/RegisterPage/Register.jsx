@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/api';
-import Cookies from 'js-cookie';
-import './login.css';
-
-const Login = () => {
+import './register.css';
+import api from '../../api/api';
+const Register = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const navigate = useNavigate();
 
@@ -13,26 +11,20 @@ const Login = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post('/auth/login', formData);
-      const token = response.data.access_token;
-
-      Cookies.set('token', token, { expires: 1 }); 
-
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      navigate('/users');
+      await api.post('/auth/register', formData);
+      navigate('/login');
     } catch (error) {
-      console.error('Login failed', error);
+      console.error('Registration failed', error);
     }
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <form onSubmit={handleLogin} className="login-form">
+    <div className="register-container">
+      <h1>Register</h1>
+      <form onSubmit={handleRegister} className="register-form">
         <input
           type="text"
           name="username"
@@ -49,11 +41,11 @@ const Login = () => {
           onChange={handleInputChange}
           autoComplete="new-password"
         />
-        <button type="submit">Login</button>
+        <button type="submit">Register</button>
       </form>
-      <button onClick={() => navigate('/register')} className="register-button">Go to Register</button>
+      <button className="login-button" onClick={() => navigate('/login')}>Go to Login</button>
     </div>
   );
 };
 
-export default Login;
+export default Register;
