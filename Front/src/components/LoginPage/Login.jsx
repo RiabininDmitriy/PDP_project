@@ -6,6 +6,7 @@ import api from '../../api/api';
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -25,13 +26,20 @@ const Login = () => {
 
       navigate('/users');
     } catch (error) {
-      console.error('Login failed', error);
+      if (error.response && error.response.data) {
+        setError(error.response.data.message);
+      } else {
+        console.error('Login failed', error);
+      }
     }
   };
 
   return (
     <div className="login-container">
-      <h1>Login</h1>
+      <div className='login-header'>
+        <h1>Login</h1>
+        {error && <div className="error-message">{error}</div>} 
+      </div>
       <form onSubmit={handleLogin} className="login-form">
         <input
           type="text"

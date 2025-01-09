@@ -4,6 +4,7 @@ import './register.css';
 import api from '../../api/api';
 const Register = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -17,13 +18,20 @@ const Register = () => {
       await api.post('/auth/register', formData);
       navigate('/login');
     } catch (error) {
-      console.error('Registration failed', error);
+      if (error.response && error.response.data) {
+        setError(error.response.data.message);
+      } else {
+        console.error('Registration failed', error);
+      }
     }
   };
 
   return (
     <div className="register-container">
-      <h1>Register</h1>
+      <div className='register-header'>
+        <h1>Register</h1>
+        {error && <div className="error-message">{error}</div>} 
+      </div>
       <form onSubmit={handleRegister} className="register-form">
         <input
           type="text"
@@ -43,6 +51,7 @@ const Register = () => {
         />
         <button type="submit">Register</button>
       </form>
+
       <button className="login-button" onClick={() => navigate('/login')}>Go to Login</button>
     </div>
   );
