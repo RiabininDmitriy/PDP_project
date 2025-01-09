@@ -3,12 +3,14 @@ import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { AccessTokenDto } from './dto/access_token.dto';
 import { LoginUserDto } from './dto/login_user_dto';
+import { WinstonLoggerService } from 'src/utils/logger.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly logger: WinstonLoggerService,
   ) {}
 
   @Post('register')
@@ -17,6 +19,7 @@ export class AuthController {
     const existingUser = await this.userService.findByUsername(username);
 
     if (existingUser) {
+      this.logger.error('Username already exists', username);
       throw new UnauthorizedException('Username already exists');
     }
 

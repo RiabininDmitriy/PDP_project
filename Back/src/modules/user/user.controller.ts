@@ -15,7 +15,6 @@ export class UserController {
   @Get()
   async getUsers(@Request() req): Promise<User[]> {
     this.logger.log('Authenticated user:', { user: req.user });
-    console.log('Authenticated user:', req.user);
     return this.userService.getUsers();
   }
 
