@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
@@ -13,7 +14,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly logger: WinstonLoggerService,
-  ) {}
+  ) { }
 
   // Register a new user with an encrypted password and save to DB
   async registerUser(username: string, password: string): Promise<User> {
@@ -37,8 +38,6 @@ export class AuthService {
   // Validate the user's credentials (compare password) and return the user if valid
   private async authenticateUser(username: string, password: string): Promise<User> {
     this.logger.log('Authenticating user', { username });
-    //todo try to find user by Btree index
-    // Find the user in the database by username
     const user = await this.userService.getUserByUsername(username);
 
     if (!user) {
