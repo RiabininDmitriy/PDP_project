@@ -10,7 +10,7 @@ import { UserController } from './modules/user/user.controller';
 import { UserService } from './modules/user/user.service';
 import { AuthController } from './modules/auth/auth.controller';
 import { AuthService } from './modules/auth/auth.service';
-import { WinstonLoggerService } from './utlis/logger.service';
+import { WinstonLoggerService } from './utils/logger.service';
 
 @Module({
   imports: [

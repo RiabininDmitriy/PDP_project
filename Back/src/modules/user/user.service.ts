@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repo';
 import { User } from 'src/entities/user.entity';
-import { WinstonLoggerService } from 'src/utlis/logger.service';
+import { WinstonLoggerService } from 'src/utils/logger.service';
 
 @Injectable()
 export class UserService {

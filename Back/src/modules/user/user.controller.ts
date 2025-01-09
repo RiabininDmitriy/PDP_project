@@ -2,7 +2,7 @@ import { Controller, Get, Param, UseGuards, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../../entities/user.entity';
 import { UserService } from './user.service';
-import { WinstonLoggerService } from 'src/utlis/logger.service';
+import { WinstonLoggerService } from 'src/utils/logger.service';
 
 @Controller('users')
 export class UserController {

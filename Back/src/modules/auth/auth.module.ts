@@ -4,7 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { UserModule } from '../user/user.module';
 import { JwtStrategy } from './jwt.strategy';
-import { WinstonLoggerService } from 'src/utlis/logger.service';
+import { WinstonLoggerService } from 'src/utils/logger.service';
 
 @Module({
   imports: [

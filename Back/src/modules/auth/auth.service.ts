@@ -4,7 +4,8 @@ import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/user.entity';
 import { AccessTokenDto } from './dto/access_token.dto';
-import { WinstonLoggerService } from 'src/utlis/logger.service';
+import { WinstonLoggerService } from 'src/utils/logger.service';
+import { SALT_ROUNDS } from 'src/utils/constants';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +31,7 @@ export class AuthService {
 
   // Encrypt the password before saving it to the database
   private async encryptPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, 10);
+    return bcrypt.hash(password, SALT_ROUNDS);
   }
 
   // Validate the user's credentials (compare password) and return the user if valid
