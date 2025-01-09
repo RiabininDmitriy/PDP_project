@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/api';
-
+import './register.css';
 const Register = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const navigate = useNavigate();
@@ -22,15 +22,16 @@ const Register = () => {
   };
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <h1>Register</h1>
-      <form onSubmit={handleRegister}>
+      <form onSubmit={handleRegister} className="register-form">
         <input
           type="text"
           name="username"
           placeholder="Username"
           value={formData.username}
           onChange={handleInputChange}
+          autoComplete="new-password"
         />
         <input
           type="password"
@@ -38,6 +39,7 @@ const Register = () => {
           placeholder="Password"
           value={formData.password}
           onChange={handleInputChange}
+          autoComplete="new-password"
         />
         <button type="submit">Register</button>
       </form>

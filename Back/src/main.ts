@@ -1,16 +1,38 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const logger = WinstonModule.createLogger({
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.colorize(),
+          winston.format.printf(({ timestamp, level, message }) => {
+            return `[${timestamp}] ${level}: ${message}`;
+          }),
+        ),
+      }),
+      new winston.transports.File({
+        filename: 'logs/app.log',
+        format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+      }),
+    ],
+  });
 
-  // Enabling CORS for all origins (you can replace '*' with a specific domain if needed)
+  const app = await NestFactory.create(AppModule, {
+    logger,
+  });
+
   app.enableCors({
-    origin: '*', // Allow all origins, or specify a particular domain like 'http://localhost:3000'
-    methods: 'GET, POST, PUT, DELETE', // Allowed HTTP methods
-    allowedHeaders: 'Content-Type, Authorization', // Allowed headers
+    origin: '*',
+    methods: 'GET, POST, PUT, DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
   });
 
   await app.listen(3001);
+  logger.log('info', 'Application is running on http://localhost:3001');
 }
 bootstrap();

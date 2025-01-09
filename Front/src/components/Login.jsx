@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/api';
 import Cookies from 'js-cookie';
+import './login.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
@@ -31,13 +32,14 @@ const Login = () => {
   return (
     <div>
       <h1>Login</h1>
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleLogin} className="login-form">
         <input
           type="text"
           name="username"
           placeholder="Username"
           value={formData.username}
           onChange={handleInputChange}
+          autoComplete="new-password"
         />
         <input
           type="password"
@@ -45,10 +47,11 @@ const Login = () => {
           placeholder="Password"
           value={formData.password}
           onChange={handleInputChange}
+          autoComplete="new-password"
         />
         <button type="submit">Login</button>
       </form>
-      <button onClick={() => navigate('/register')}>Go to Register</button>
+      <button onClick={() => navigate('/register')} className="register-button">Go to Register</button>
     </div>
   );
 };

@@ -1,18 +1,17 @@
-/* eslint-disable prettier/prettier */
 import { DataSource } from 'typeorm';
+import dotenv from 'dotenv';
 
+dotenv.config();
 
 export const AppDataSource = new DataSource({
-	type: 'postgres',
-	host: 'localhost',
-	port: 5432,
-	username: 'testUser',
-	password: 'password',
-	database: 'testDb',
-	entities: ['src/entities/*.ts'],
-	migrations: ['src/migrations/*.ts'],
-	synchronize: false,
-	logging: true,
+  type: process.env.DB_TYPE as 'postgres',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT, 10),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  entities: ['src/entities/*.ts'],
+  migrations: ['src/migrations/*.ts'],
+  synchronize: false,
+  logging: true,
 });
-
-//todo move to env file

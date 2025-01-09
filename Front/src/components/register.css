@@ -1,0 +1,7 @@
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: aquamarine;
+  height: 300px;
+}

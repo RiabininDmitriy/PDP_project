@@ -1,0 +1,13 @@
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: azure;
+	height: 300px;
+}
+
+.register-button {
+	width: 100%;
+}
+  
+  

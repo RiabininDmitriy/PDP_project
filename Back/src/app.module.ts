@@ -10,10 +10,11 @@ import { UserController } from './modules/user/user.controller';
 import { UserService } from './modules/user/user.service';
 import { AuthController } from './modules/auth/auth.controller';
 import { AuthService } from './modules/auth/auth.service';
+import { WinstonLoggerService } from './utlis/logger.service';
 
 @Module({
   imports: [
-    //change to  TypeOrmModule.forRoot(AppDataSource.options),
+    //change to  TypeOrmModule.forRoot(AppDataSource.options)
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -29,6 +30,12 @@ import { AuthService } from './modules/auth/auth.service';
     AuthModule,
   ],
   controllers: [UserController, AuthController],
-  providers: [AppService, UserService, UserRepository, AuthService],
+  providers: [
+    AppService, 
+    UserService, 
+    UserRepository, 
+    AuthService, 
+    WinstonLoggerService, 
+  ],
 })
 export class AppModule {}
