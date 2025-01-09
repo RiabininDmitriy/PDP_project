@@ -27,4 +27,8 @@ export class UserRepository extends Repository<User> {
   async getUserByLoginAndPassword(username: string, password: string): Promise<User> {
     return this.findOne({ where: { username, password } });
   }
+
+  async getUserByUsername(username: string): Promise<User> {
+    return this.findOne({ where: { username } });
+  }
 }

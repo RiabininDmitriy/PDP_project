@@ -20,12 +20,12 @@ export class AuthController {
       throw new UnauthorizedException('Username already exists');
     }
 
-    const user = await this.userService.createUser(username, password);
+    const user = await this.authService.registerUser(username, password);
     return { message: 'User registered successfully', user };
   }
 
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto): Promise<AccessTokenDto> {
-    return this.authService.loginUser(loginUserDto.username, loginUserDto.password);
+    return this.authService.login(loginUserDto.username, loginUserDto.password);
   }
 }

@@ -38,4 +38,9 @@ export class UserService {
     this.logger.log('Getting user by login and password', { username });
     return this.userRepository.getUserByLoginAndPassword(username, hashedPassword);
   }
+
+  async getUserByUsername(username: string) {
+    this.logger.log('Getting user by username', { username });
+    return this.userRepository.getUserByUsername(username);
+  }
 }

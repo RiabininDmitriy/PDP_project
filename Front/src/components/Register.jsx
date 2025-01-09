@@ -43,7 +43,7 @@ const Register = () => {
         />
         <button type="submit">Register</button>
       </form>
-      <button onClick={() => navigate('/login')}>Go to Login</button>
+      <button className="login-button" onClick={() => navigate('/login')}>Go to Login</button>
     </div>
   );
 };
