@@ -1,15 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
-  username: string;
-
   @Column()
   password: string;
 
-  //add annotation for the username to be index
+  @Index('IDX_username', { synchronize: false })
+  @Column({ unique: true })
+  username: string;
 }

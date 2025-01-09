@@ -29,6 +29,7 @@ export class UserRepository extends Repository<User> {
   }
 
   async getUserByUsername(username: string): Promise<User> {
+    // This method will automatically use the index on `username` if it's properly set in the entity
     return this.findOne({ where: { username } });
   }
 }
