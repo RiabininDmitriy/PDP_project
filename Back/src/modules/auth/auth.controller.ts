@@ -14,8 +14,8 @@ export class AuthController {
   ) { }
 
   @Post('register')
-  async register(@Body() body: { username: string; password: string }) {
-    const { username, password } = body;
+  async register(@Body() loginUserDto: LoginUserDto) {
+    const { username, password } = loginUserDto;
     const existingUser = await this.userService.findByUsername(username);
 
     if (existingUser) {
@@ -23,14 +23,14 @@ export class AuthController {
       throw new UnauthorizedException('Username already exists');
     }
 
-    const user = await this.authService.registerUser(username, password);
-    this.logger.log('User registered successfully', { username });
+    const user = await this.authService.registerUser(loginUserDto);
+    this.logger.log('User registered successfully', { username: user.username });
     return { message: 'User registered successfully', user };
   }
 
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto): Promise<AccessTokenDto> {
     this.logger.log('Login request received', { username: loginUserDto.username });
-    return this.authService.login(loginUserDto.username, loginUserDto.password);
+    return this.authService.login(loginUserDto);
   }
 }

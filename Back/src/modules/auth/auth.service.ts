@@ -7,6 +7,7 @@ import { User } from 'src/entities/user.entity';
 import { AccessTokenDto } from './dto/access_token.dto';
 import { WinstonLoggerService } from 'src/utils/logger.service';
 import { SALT_ROUNDS } from 'src/utils/constants';
+import { LoginUserDto } from './dto/login_user_dto';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,8 @@ export class AuthService {
   ) { }
 
   // Register a new user with an encrypted password and save to DB
-  async registerUser(username: string, password: string): Promise<User> {
+  async registerUser(loginUserDto: LoginUserDto): Promise<User> {
+    const { username, password } = loginUserDto;
     const encryptedPassword = await this.encryptPassword(password);
 
     this.logger.log('Registering user', { username });
@@ -25,8 +27,9 @@ export class AuthService {
   }
 
   // Login a user by validating credentials and returning an access token
-  async login(username: string, password: string): Promise<AccessTokenDto> {
-    const user = await this.authenticateUser(username, password);
+  async login(loginUserDto: LoginUserDto): Promise<AccessTokenDto> {
+    const { username, password } = loginUserDto;
+    const user = await this.authenticateUser(loginUserDto);
     this.logger.log('User authenticated', { username });
     return this.generateAccessToken(user);
   }
@@ -38,7 +41,8 @@ export class AuthService {
   }
 
   // Validate the user's credentials (compare password) and return the user if valid
-  private async authenticateUser(username: string, password: string): Promise<User> {
+  private async authenticateUser(loginUserDto: LoginUserDto): Promise<User> {
+    const { username, password } = loginUserDto;
     this.logger.log('Authenticating user', { username });
     const user = await this.userService.getUserByUsername(username);
 
