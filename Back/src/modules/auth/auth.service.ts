@@ -20,18 +20,20 @@ export class AuthService {
   async registerUser(username: string, password: string): Promise<User> {
     const encryptedPassword = await this.encryptPassword(password);
 
-    console.log('encryptedPassword', encryptedPassword);
+    this.logger.log('Registering user', { username });
     return this.userService.createUser(username, encryptedPassword);
   }
 
   // Login a user by validating credentials and returning an access token
   async login(username: string, password: string): Promise<AccessTokenDto> {
     const user = await this.authenticateUser(username, password);
+    this.logger.log('User authenticated', { username });
     return this.generateAccessToken(user);
   }
 
   // Encrypt the password before saving it to the database
   private async encryptPassword(password: string): Promise<string> {
+    this.logger.log('Encrypting password', { password });
     return bcrypt.hash(password, SALT_ROUNDS);
   }
 
@@ -41,19 +43,23 @@ export class AuthService {
     const user = await this.userService.getUserByUsername(username);
 
     if (!user) {
+      this.logger.error('Invalid credentials', username);
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const isPasswordValid = await this.isPasswordValid(password, user.password);
     if (!isPasswordValid) {
+      this.logger.error('Invalid password', username);
       throw new UnauthorizedException('Invalid password');
     }
+    this.logger.log('User authenticated', { username });
 
     return user;
   }
 
   // Check if the provided password matches the hashed password stored in DB
   private async isPasswordValid(providedPassword: string, storedPassword: string): Promise<boolean> {
+    this.logger.log('Checking password', { providedPassword, storedPassword });
     return bcrypt.compare(providedPassword, storedPassword);
   }
 

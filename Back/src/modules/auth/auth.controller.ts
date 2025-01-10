@@ -11,7 +11,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private readonly logger: WinstonLoggerService,
-  ) {}
+  ) { }
 
   @Post('register')
   async register(@Body() body: { username: string; password: string }) {
@@ -24,11 +24,13 @@ export class AuthController {
     }
 
     const user = await this.authService.registerUser(username, password);
+    this.logger.log('User registered successfully', { username });
     return { message: 'User registered successfully', user };
   }
 
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto): Promise<AccessTokenDto> {
+    this.logger.log('Login request received', { username: loginUserDto.username });
     return this.authService.login(loginUserDto.username, loginUserDto.password);
   }
 }
