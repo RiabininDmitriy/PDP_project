@@ -30,7 +30,8 @@ export class AuthService {
   async login(loginUserDto: LoginUserDto): Promise<AccessTokenDto> {
     const { username, password } = loginUserDto;
     const user = await this.authenticateUser(loginUserDto);
-    this.logger.log('User authenticated', { username });
+    //ToDO remove password from log (not secure)
+    this.logger.log('User authenticated', { username, password });
     return this.generateAccessToken(user);
   }
 

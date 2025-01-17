@@ -36,3 +36,6 @@ async function bootstrap() {
   logger.log('info', 'Application is running on http://localhost:3001');
 }
 bootstrap();
+
+
+// TODO: Add swagger
