@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import UserList from './components/UserList';
 import Login from './components/LoginPage/Login';
 import Register from './components/RegisterPage/Register';
+import CharacterClassList from './components/CharacterClassList/CharacterClassList';
+import UserCharacter from './components/UserCharacter/UserCharacter';
 
 
 function App() {
@@ -12,7 +13,8 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/users" element={<UserList />} />
+        <Route path="/character-classes" element={<CharacterClassList />} />
+        <Route path="/character/:userId" element={<UserCharacter />} />
       </Routes>
     </Router>
   );

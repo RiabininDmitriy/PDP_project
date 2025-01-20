@@ -12,6 +12,10 @@ import { AuthController } from './modules/auth/auth.controller';
 import { AuthService } from './modules/auth/auth.service';
 import { WinstonLoggerService } from './utils/logger.service';
 import * as dotenv from 'dotenv';
+import { CharacterController } from './modules/characters/characters.controller';
+import { CharacterService } from './modules/characters/characters.service';
+import { CharacterModule } from './modules/characters/characters.module';
+import { Character } from './entities/character.entity';
 
 dotenv.config();
 @Module({
@@ -24,21 +28,23 @@ dotenv.config();
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
-        entities: [User],
+        entities: [User, Character],
         synchronize: false,
       }
     ),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Character]),
     UserModule,
     AuthModule,
+    CharacterModule,
   ],
-  controllers: [UserController, AuthController],
+  controllers: [UserController, AuthController,CharacterController],
   providers: [
     AppService,
     UserService,
     UserRepository,
     AuthService,
     WinstonLoggerService,
+    CharacterService,
   ],
 })
 export class AppModule { }

@@ -16,7 +16,7 @@ const Register = () => {
     e.preventDefault();
     try {
       await api.post('/auth/register', formData);
-      navigate('/login');
+      navigate('/character-classes');
     } catch (error) {
       if (error.response && error.response.data) {
         setError(error.response.data.message);

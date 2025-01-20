@@ -19,12 +19,14 @@ const Login = () => {
     try {
       const response = await api.post('/auth/login', formData);
       const token = response.data.access_token;
+      const userId = response.data.userId;
 
       Cookies.set('token', token, { expires: 1 }); 
+      Cookies.set('userId', userId, { expires: 1 });
 
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      navigate('/users');
+      navigate('/character-classes');
     } catch (error) {
       if (error.response && error.response.data) {
         setError(error.response.data.message);

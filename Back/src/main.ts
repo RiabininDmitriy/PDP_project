@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const logger = WinstonModule.createLogger({
@@ -26,6 +27,15 @@ async function bootstrap() {
     logger,
   });
 
+  const config = new DocumentBuilder()
+    .setTitle('Game API')
+    .setDescription('The API description')
+    .setVersion('1.0')
+    .addTag('game')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
   app.enableCors({
     origin: '*',
     methods: 'GET, POST, PUT, DELETE',
@@ -36,6 +46,3 @@ async function bootstrap() {
   logger.log('info', 'Application is running on http://localhost:3001');
 }
 bootstrap();
-
-
-// TODO: Add swagger
