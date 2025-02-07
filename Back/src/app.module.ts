@@ -17,6 +17,11 @@ import { CharacterService } from './modules/characters/characters.service';
 import { CharacterModule } from './modules/characters/characters.module';
 import { Character } from './entities/character.entity';
 import { CharactersRepository } from './modules/characters/characters.repo';
+import { BattleService } from './modules/battle/battle.service';
+import { BattleModule } from './modules/battle/battle.module';
+import { BattleController } from './modules/battle/battle.controller';
+import { Battle } from './entities/battle.entity';
+import { BattleLog } from './entities/battle-log.entity';
 
 dotenv.config();
 @Module({
@@ -29,16 +34,17 @@ dotenv.config();
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
-        entities: [User, Character],
+        entities: [User, Character, Battle, BattleLog],
         synchronize: false,
       }
     ),
-    TypeOrmModule.forFeature([User, Character]),
+    TypeOrmModule.forFeature([User, Character, Battle, BattleLog]),
     UserModule,
     AuthModule,
     CharacterModule,
+    BattleModule,
   ],
-  controllers: [UserController, AuthController,CharacterController],
+  controllers: [UserController, AuthController, CharacterController, BattleController],
   providers: [
     AppService,
     UserService,
@@ -47,6 +53,7 @@ dotenv.config();
     WinstonLoggerService,
     CharacterService,
     CharactersRepository,
+    BattleService,
   ],
 })
 export class AppModule { }

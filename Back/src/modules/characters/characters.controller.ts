@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { CharacterService } from './characters.service';
 import { CHARACTER_CLASSES } from './config/character-classes.config';
 import { CreateCharacterDto, GetCharacterDto } from './dto/characters.dto';
@@ -30,7 +30,7 @@ export class CharacterController {
 
   @UseGuards(AuthGuard('jwt'), PersonalGuard)
   @Get(':userId')
-  async getCharacter(@Param() getCharacterDto: GetCharacterDto) {
-    return this.characterService.getCharacter(getCharacterDto.userId);
+  async getCharacter(@Param('userId', ParseIntPipe) userId: number) {
+    return this.characterService.getCharacter(userId);
   }
 }

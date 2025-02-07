@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom'; 
+import { useNavigate, useParams } from 'react-router-dom'; 
 import api from '../../api/api';
 import styled from 'styled-components';
 
@@ -19,6 +19,7 @@ const Image = styled.img`
 const UserCharacter = () => {
   const { userId } = useParams(); 
   const [character, setCharacter] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCharacter = async () => {
@@ -35,6 +36,21 @@ const UserCharacter = () => {
   if (!character) {
     return <div>Loading...</div>;
   }
+  const handleStartBattle = async () => {
+    try {
+      const response = await api.post(`/battle/find-opponent/${character.id}`);
+      const data = response.data;
+      if (data.status === 'found') {
+        navigate(`/battle/${data.battleId}`);
+      } else if (data.status === 'searching') {
+        console.log('Looking for an opponent...');
+      } else {
+        console.error('No opponents found');
+      }
+    } catch (error) {
+      console.error('Error starting battle', error);
+    }
+  };
 
   return (
     <Container>
@@ -47,6 +63,8 @@ const UserCharacter = () => {
       <p>Money: {character.money}</p>
       <p>Level: {character.level}</p>
       <p>GearScore: {character.gearScore}</p>
+
+      <button onClick={handleStartBattle}>Start Battle</button>
     </Container>
   );
 };

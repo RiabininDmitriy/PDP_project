@@ -9,6 +9,6 @@ import { Character } from 'src/entities/character.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([User, Character]),],
   providers: [UserService, UserRepository, WinstonLoggerService],
-  exports: [UserService],
+  exports: [UserService, UserRepository],
 })
 export class UserModule {}

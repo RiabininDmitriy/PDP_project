@@ -56,16 +56,6 @@ export class CharacterService {
     character.heavyAttack += 3; // Increase heavy attack power
     character.defense += 1; // Increase defense
     character.gearScore = Math.round(calculateGearScore(character)); // Update gear score based on new stats
-
-    // const updatedCharacter: DeepPartial<Character> = {
-    //   hp: character.hp + 10,
-    //   normalAttack: character.normalAttack + 2,
-    //   heavyAttack: character.heavyAttack + 3,
-    //   defense: character.defense + 1,
-    //   gearScore: Math.round(calculateGearScore(character)),
-    // };
-
-    // return this.charactersRepository.saveCharacter(updatedCharacter);
   }
 
   // оновити 2 персонажів однією транзакцією
