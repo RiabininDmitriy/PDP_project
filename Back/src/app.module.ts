@@ -16,6 +16,7 @@ import { CharacterController } from './modules/characters/characters.controller'
 import { CharacterService } from './modules/characters/characters.service';
 import { CharacterModule } from './modules/characters/characters.module';
 import { Character } from './entities/character.entity';
+import { CharactersRepository } from './modules/characters/characters.repo';
 
 dotenv.config();
 @Module({
@@ -45,6 +46,7 @@ dotenv.config();
     AuthService,
     WinstonLoggerService,
     CharacterService,
+    CharactersRepository,
   ],
 })
 export class AppModule { }

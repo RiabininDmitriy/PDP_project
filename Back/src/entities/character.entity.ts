@@ -1,11 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
-import { CharacterClass } from 'src/modules/characters/characters.types';
+import { CharacterClass } from './utils/characters.types';
 
 @Entity()
 export class Character {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ type: 'enum', enum: CharacterClass })
   classType: CharacterClass;
@@ -30,6 +30,9 @@ export class Character {
 
   @Column({ default: 0 }) // Gear score
   gearScore: number;
+
+  @Column({ default: 0 }) // Experience points (XP)
+  xp: number;
 
   @Column({ default: '' }) // Image URL
   imageUrl: string;
