@@ -19,7 +19,7 @@ export class CharacterController {
     return this.characterService.createCharacter(userId, createCharacterDto.classType);
   }
 
-  @UseGuards(AuthGuard('jwt'), PersonalGuard)
+  @UseGuards(AuthGuard('jwt'), NonPersonalGuard)
   @Get('/classes')
   getCharacterClasses() {
     return Object.keys(CHARACTER_CLASSES).map((classType) => ({

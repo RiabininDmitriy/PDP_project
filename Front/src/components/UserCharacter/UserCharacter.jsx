@@ -45,7 +45,7 @@ const UserCharacter = () => {
 
   const handleStartBattle = async () => {
     try {
-      const response = await api.post(`/battle/find-opponent/${character.id}`);
+      const response = await api.post(`/battle/find-opponent/${userId}/${character.id}`);
       const data = response.data;
       if (data.status === 'found') {
         navigate(`/battle/${data.battleId}`);

@@ -22,9 +22,9 @@ export class BattleService {
     private readonly characterService: CharacterService,
   ) {}
 
-  async findOpponentAndStartBattle(playerId: string) {
-    const player = await this.characterRepository.findOne({ where: { id: playerId } });
-    logger.log('findOpponentAndStartBattle', playerId);
+  async findOpponentAndStartBattle(characterId: string) {
+    const player = await this.characterRepository.findOne({ where: { id: characterId } });
+    logger.log('findOpponentAndStartBattle', characterId);
 
     if (!player) {
       logger.error('Player not found');
@@ -37,7 +37,7 @@ export class BattleService {
     const opponents = await this.characterRepository.find({
       where: {
         gearScore: Between(minGearScore, maxGearScore),
-        id: Not(playerId),
+        id: Not(characterId),
       },
     });
 

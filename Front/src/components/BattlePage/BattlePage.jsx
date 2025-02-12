@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import api from '../../api/api';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import api from "../../api/api";
+import Cookies from "js-cookie";
 
 const BattlePage = () => {
   const { battleId } = useParams();
@@ -8,49 +9,51 @@ const BattlePage = () => {
   const [battleData, setBattleData] = useState(null);
   const [battleFinished, setBattleFinished] = useState(false); // Track if the battle is finished
   const [playerStats, setPlayerStats] = useState(null); // Store player stats after battle
-
+  const userId = Cookies.get("userId");
+  const navigate = useNavigate();
+  
   const startBattle = async () => {
     try {
-      const response = await api.post(`/battle/start/${battleId}`);
+      const response = await api.post(`/battle/start/${userId}/${battleId}`);
       const data = response.data; // Axios puts response data in the `data` field.
 
-      if (data.status === 'searching') {
+      if (data.status === "searching") {
         setSearching(true);
-      } else if (data.status === 'in_progress') {
+      } else if (data.status === "in_progress") {
         startPollingBattle(data.battleId);
       }
     } catch (error) {
-      console.error('Error starting battle:', error);
+      console.error("Error starting battle:", error);
     }
   };
 
   const startPollingBattle = (id) => {
     const interval = setInterval(async () => {
       try {
-        const response = await api.post(`/battle/round/${battleId}`);
-        const status = await api.get(`/battle/status/${battleId}`);
+        const response = await api.post(`/battle/round/${userId}/${battleId}`);
+        const status = await api.get(`/battle/status/${userId}/${battleId}`);
 
         const data = response.data;
         setBattleData(data);
 
-        if (status.data.status === 'finished') {
+        if (status.data.status === "finished") {
           clearInterval(interval);
           setBattleFinished(true);
-          setPlayerStats(data.winnerId === data.playerOne.id ? data.playerOne : data.playerTwo); // Set stats of the winner
-          console.log('Battle finished, winner:', data.winnerId);
+          setPlayerStats(
+            data.winnerId === data.playerOne.id
+              ? data.playerOne
+              : data.playerTwo
+          ); // Set stats of the winner
+          console.log("Battle finished, winner:", data.winnerId);
         }
       } catch (error) {
-        console.error('Error polling battle status:', error);
+        console.error("Error polling battle status:", error);
       }
     }, 2000); // Increased interval to 2 seconds
   };
 
   const restartBattle = () => {
-    setBattleFinished(false);
-    setSearching(false);
-    setBattleData(null);
-    setPlayerStats(null);
-    startBattle(); // Restart the battle
+    navigate(`/character/${userId}`);
   };
 
   useEffect(() => {
@@ -69,7 +72,7 @@ const BattlePage = () => {
           <div>
             <h3>Winner: {playerStats.user.username}</h3>
             <img
-              style={{ width: '100px', height: '100px' }}
+              style={{ width: "100px", height: "100px" }}
               src={playerStats.imageUrl}
               alt="Winner"
             />
@@ -82,40 +85,46 @@ const BattlePage = () => {
             <p>Heavy Attack: {playerStats.heavyAttack}</p>
             <p>Defense: {playerStats.defense}</p>
           </div>
-          <button onClick={restartBattle}>Start New Battle</button>
+          <button onClick={restartBattle}>Back to Character</button>
         </div>
       ) : battleData ? (
         <div>
           <h2>Battle in Progress</h2>
-          <div>
-            <h3>Player 1: {battleData.playerOne.user.username}</h3>
-            <img
-              style={{ width: '100px', height: '100px' }}
-              src={battleData.playerOne.imageUrl}
-              alt="Player 1"
-            />
-            <p>Class: {battleData.playerOne.classType}</p>
-            <p>HP: {battleData.playerOneHp} / {battleData.playerOne.hp}</p>
-            <p>Gear Score: {battleData.playerOne.gearScore}</p>
-            <p>Level: {battleData.playerOne.level}</p>
-            <p>Normal Attack: {battleData.playerOne.normalAttack}</p>
-            <p>Heavy Attack: {battleData.playerOne.heavyAttack}</p>
-            <p>Defense: {battleData.playerOne.defense}</p>
-          </div>
-          <div>
-            <h3>Player 2: {battleData.playerTwo.user.username}</h3>
-            <img
-              style={{ width: '100px', height: '100px' }}
-              src={battleData.playerTwo.imageUrl}
-              alt="Player 2"
-            />
-            <p>Class: {battleData.playerTwo.classType}</p>
-            <p>HP: {battleData.playerTwoHp} / {battleData.playerTwo.hp}</p>
-            <p>Gear Score: {battleData.playerTwo.gearScore}</p>
-            <p>Level: {battleData.playerTwo.level}</p>
-            <p>Normal Attack: {battleData.playerTwo.normalAttack}</p>
-            <p>Heavy Attack: {battleData.playerTwo.heavyAttack}</p>
-            <p>Defense: {battleData.playerTwo.defense}</p>
+          <div style={{ display: "flex", justifyContent: "space-around" }}>
+            <div>
+              <h3>Player 1: {battleData.playerOne.user.username}</h3>
+              <img
+                style={{ width: "100px", height: "100px" }}
+                src={battleData.playerOne.imageUrl}
+                alt="Player 1"
+              />
+              <p>Class: {battleData.playerOne.classType}</p>
+              <p>
+                HP: {battleData.playerOneHp} / {battleData.playerOne.hp}
+              </p>
+              <p>Gear Score: {battleData.playerOne.gearScore}</p>
+              <p>Level: {battleData.playerOne.level}</p>
+              <p>Normal Attack: {battleData.playerOne.normalAttack}</p>
+              <p>Heavy Attack: {battleData.playerOne.heavyAttack}</p>
+              <p>Defense: {battleData.playerOne.defense}</p>
+            </div>
+            <div>
+              <h3>Player 2: {battleData.playerTwo.user.username}</h3>
+              <img
+                style={{ width: "100px", height: "100px" }}
+                src={battleData.playerTwo.imageUrl}
+                alt="Player 2"
+              />
+              <p>Class: {battleData.playerTwo.classType}</p>
+              <p>
+                HP: {battleData.playerTwoHp} / {battleData.playerTwo.hp}
+              </p>
+              <p>Gear Score: {battleData.playerTwo.gearScore}</p>
+              <p>Level: {battleData.playerTwo.level}</p>
+              <p>Normal Attack: {battleData.playerTwo.normalAttack}</p>
+              <p>Heavy Attack: {battleData.playerTwo.heavyAttack}</p>
+              <p>Defense: {battleData.playerTwo.defense}</p>
+            </div>
           </div>
         </div>
       ) : (
