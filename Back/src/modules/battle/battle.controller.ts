@@ -10,8 +10,6 @@ export class BattleController {
 		private readonly charactersRepository: CharactersRepository
 	) {}
 
-  // This endpoint will handle the starting of the battle based on the battleId
-
 	@Post('find-opponent/:characterId')
   async findOpponent(@Param('characterId') characterId: string) {
 		logger.log('findOpponent',characterId);
@@ -32,6 +30,7 @@ export class BattleController {
 
     return await this.battleService.getBattleStatus(battleId);
   }
+
 	@Post('start/:battleId')
 	async startBattle(@Param('battleId') battleId: string) {
 			const battleStatus = await this.battleService.getBattleStatus(battleId);

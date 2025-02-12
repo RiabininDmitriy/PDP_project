@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Param, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { CharacterService } from './characters.service';
 import { CHARACTER_CLASSES } from './config/character-classes.config';
-import { CreateCharacterDto, GetCharacterDto } from './dto/characters.dto';
+import { CreateCharacterDto } from './dto/characters.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { PersonalGuard } from 'src/utils/auth/guards/personal_guard';
 import { NonPersonalGuard } from 'src/utils/auth/guards/non_personal_guard';
@@ -19,7 +19,7 @@ export class CharacterController {
     return this.characterService.createCharacter(userId, createCharacterDto.classType);
   }
 
-  @UseGuards(AuthGuard('jwt'), NonPersonalGuard)
+  @UseGuards(AuthGuard('jwt'), PersonalGuard)
   @Get('/classes')
   getCharacterClasses() {
     return Object.keys(CHARACTER_CLASSES).map((classType) => ({

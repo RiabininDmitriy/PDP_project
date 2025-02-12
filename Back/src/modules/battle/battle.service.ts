@@ -140,5 +140,5 @@ export class BattleService {
     logger.log('Battle finished', battle);
 
     return await this.battleRepository.save(battle);
-}
+  }
 }
