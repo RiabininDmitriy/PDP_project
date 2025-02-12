@@ -4,6 +4,7 @@ import { UserService } from '../user/user.service';
 import { AccessTokenDto } from './dto/access_token.dto';
 import { LoginUserDto } from './dto/login_user_dto';
 import { WinstonLoggerService } from 'src/utils/logger.service';
+import { CharacterService } from '../characters/characters.service';
 
 @Controller('auth')
 export class AuthController {
@@ -11,6 +12,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private readonly logger: WinstonLoggerService,
+    private readonly characterService: CharacterService,
   ) { }
 
   @Post('register')
@@ -32,10 +34,12 @@ export class AuthController {
   async login(@Body() loginUserDto: LoginUserDto): Promise<AccessTokenDto> {
     this.logger.log('Login request received', { username: loginUserDto.username });
     const accessTokenDto = await this.authService.login(loginUserDto);
+    const character = await this.characterService.getCharacter(accessTokenDto.userId);
 
     return {
       access_token: accessTokenDto.access_token,
       userId: accessTokenDto.userId,
+      characterId: character?.id || null,
     };
   }
 }

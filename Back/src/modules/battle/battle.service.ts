@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, Not } from 'typeorm';
+import { Repository, Between, Not, EntityManager } from 'typeorm';
 import { Battle } from 'src/entities/battle.entity';
 import { BattleLog } from 'src/entities/battle-log.entity';
 import { Character } from 'src/entities/character.entity';
@@ -128,17 +128,39 @@ export class BattleService {
     return await this.battleRepository.save(battle);
   }
 
-	private async finishBattle(battle: Battle, winner: Character) {
-    const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
-    battle.winnerId = winner.id;
-    battle.winnerName = winner.user.username; // Set the winner's name
+	// private async finishBattle(battle: Battle, winner: Character) {
+  //   const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
+  //   battle.winnerId = winner.id;
+  //   battle.winnerName = winner.user.username; // Set the winner's name
 
-    // Add experience for both players
-    await this.characterService.addExperience(winner.id, 100); // Winner
-    await this.characterService.addExperience(loser.id, 50); // Loser
+  //   // Add experience for both players
+  //   await this.characterService.addExperience(winner.id, 100); // Winner
+  //   await this.characterService.addExperience(loser.id, 50); // Loser
 
-    logger.log('Battle finished', battle);
+  //   logger.log('Battle finished', battle);
 
-    return await this.battleRepository.save(battle);
-  }
+  //   return await this.battleRepository.save(battle);
+  // }
+
+
+private async finishBattle(battle: Battle, winner: Character) {
+  const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
+
+  battle.winnerId = winner.id;
+  battle.winnerName = winner.user.username; 
+
+  const transactionResult = await this.battleRepository.manager.transaction(
+    async (manager: EntityManager) => {
+      await manager.save(Battle, battle);
+
+      await this.characterService.addExperience(winner.id, 100, manager); 
+      await this.characterService.addExperience(loser.id, 50, manager);
+
+      return battle; 
+    },
+  );
+
+  logger.log('Battle finished', transactionResult);
+  return transactionResult;
+}
 }

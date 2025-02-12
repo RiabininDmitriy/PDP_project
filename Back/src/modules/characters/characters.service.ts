@@ -6,6 +6,7 @@ import { logger } from 'src/utils/logger.service';
 import { CharacterClass } from '../../entities/utils/characters.types';
 import { calculateGearScore } from 'src/utils/utils';
 import { CharactersRepository } from './characters.repo';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class CharacterService {
@@ -56,25 +57,53 @@ export class CharacterService {
     character.heavyAttack += 3; // Increase heavy attack power
     character.defense += 1; // Increase defense
     character.gearScore = Math.round(calculateGearScore(character)); // Update gear score based on new stats
+    character.money += 10;
   }
 
-  // оновити 2 персонажів однією транзакцією
-  async addExperience(characterId: string, xpGained: number) {
-    // Adds experience to a character and handles leveling up if the XP threshold is reached
-    const character = await this.charactersRepository.findCharacterById(characterId);
+  // async addExperience(characterId: string, xpGained: number) {
+  //   // Adds experience to a character and handles leveling up if the XP threshold is reached
+  //   const character = await this.charactersRepository.findCharacterById(characterId);
+  
+  //   if (!character) {
+  //     throw new Error('Character not found'); // Error handling if character is not found
+  //   }
+  
+  //   character.xp += xpGained; // Add gained XP to character's total
+  
+  //   while (character.xp >= this.getXpThreshold(character.level)) {
+  //     character.xp -= this.getXpThreshold(character.level); // Subtract the threshold to calculate remaining XP
+  //     character.level++; // Increment character's level
+  //     this.levelUpCharacter(character); // Level up the character
+  //   }
+  
+  //   return await this.charactersRepository.saveCharacter(character);// Save the updated character data
+  // }
+
+  async addExperience(characterId: string, xpGained: number, manager: EntityManager) {
+    const character = await manager.findOne(Character, { where: { id: characterId } });
   
     if (!character) {
-      throw new Error('Character not found'); // Error handling if character is not found
+      throw new Error('Character not found');
     }
-  
-    character.xp += xpGained; // Add gained XP to character's total
-  
+
+    character.xp += xpGained;
+
     while (character.xp >= this.getXpThreshold(character.level)) {
-      character.xp -= this.getXpThreshold(character.level); // Subtract the threshold to calculate remaining XP
-      character.level++; // Increment character's level
-      this.levelUpCharacter(character); // Level up the character
+      character.xp -= this.getXpThreshold(character.level);
+      character.level++;
+      this.levelUpCharacter(character);
     }
-  
-    return await this.charactersRepository.saveCharacter(character);// Save the updated character data
+
+    await manager.save(Character, character);
+    return character;
+  }
+
+  async addExperienceForTwoCharacters(characterId1: string, xpGained1: number, characterId2: string, xpGained2: number) {
+    return this.charactersRepository.manager.transaction(async (manager: EntityManager) => {
+      const character1 = await this.addExperience(characterId1, xpGained1, manager);
+      const character2 = await this.addExperience(characterId2, xpGained2, manager);
+
+      return { character1, character2 };
+    });
   }
 }

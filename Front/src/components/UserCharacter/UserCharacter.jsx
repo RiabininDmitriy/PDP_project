@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom'; 
 import api from '../../api/api';
 import styled from 'styled-components';
+import Cookies from 'js-cookie';
 
 const Container = styled.div`
   display: flex;
@@ -36,6 +37,12 @@ const UserCharacter = () => {
   if (!character) {
     return <div>Loading...</div>;
   }
+
+  const handleLogOut = () => {
+    Cookies.remove('userId');
+    navigate('/');
+  };
+
   const handleStartBattle = async () => {
     try {
       const response = await api.post(`/battle/find-opponent/${character.id}`);
@@ -65,6 +72,7 @@ const UserCharacter = () => {
       <p>GearScore: {character.gearScore}</p>
 
       <button onClick={handleStartBattle}>Start Battle</button>
+      <button style={{ marginTop: '40px', backgroundColor:'red' }} onClick={handleLogOut}>Log Out</button>
     </Container>
   );
 };

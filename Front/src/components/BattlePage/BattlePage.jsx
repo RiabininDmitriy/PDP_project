@@ -30,7 +30,6 @@ const BattlePage = () => {
         const response = await api.post(`/battle/round/${battleId}`);
         const status = await api.get(`/battle/status/${battleId}`);
 
-        console.log('status 111', status);
         const data = response.data;
         setBattleData(data);
 
@@ -99,7 +98,6 @@ const BattlePage = () => {
             <p>HP: {battleData.playerOneHp} / {battleData.playerOne.hp}</p>
             <p>Gear Score: {battleData.playerOne.gearScore}</p>
             <p>Level: {battleData.playerOne.level}</p>
-            <p>XP: {battleData.playerOne.xp}</p>
             <p>Normal Attack: {battleData.playerOne.normalAttack}</p>
             <p>Heavy Attack: {battleData.playerOne.heavyAttack}</p>
             <p>Defense: {battleData.playerOne.defense}</p>
@@ -115,7 +113,6 @@ const BattlePage = () => {
             <p>HP: {battleData.playerTwoHp} / {battleData.playerTwo.hp}</p>
             <p>Gear Score: {battleData.playerTwo.gearScore}</p>
             <p>Level: {battleData.playerTwo.level}</p>
-            <p>XP: {battleData.playerTwo.xp}</p>
             <p>Normal Attack: {battleData.playerTwo.normalAttack}</p>
             <p>Heavy Attack: {battleData.playerTwo.heavyAttack}</p>
             <p>Defense: {battleData.playerTwo.defense}</p>
