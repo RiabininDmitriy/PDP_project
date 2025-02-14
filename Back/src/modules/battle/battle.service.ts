@@ -7,6 +7,7 @@ import { Character } from 'src/entities/character.entity';
 import { CharacterService } from '../characters/characters.service';
 import { logger } from 'src/utils/logger.service';
 import { BattleRepository } from './battle.repo';
+import { BattleStatusResponseDto, FindOpponentResponseDto } from './dto/battle.dto';
 
 @Injectable()
 export class BattleService {
@@ -22,7 +23,7 @@ export class BattleService {
   ) {}
 
   // Method to find an opponent for the given character and start a battle
-  async findOpponentAndStartBattle(characterId: string) {
+  async findOpponentAndStartBattle(characterId: string): Promise<FindOpponentResponseDto> {
     const player = await this.battleRepository.findCharacterById(characterId);
     logger.log('findOpponentAndStartBattle', characterId);
 
@@ -49,7 +50,7 @@ export class BattleService {
   }
 
   // Method to get the status of a battle
-  async getBattleStatus(battleId: string) {
+  async getBattleStatus(battleId: string): Promise<BattleStatusResponseDto> {
     const battle = await this.battleRepository.getBattleById(battleId);
 
     if (!battle) {
@@ -78,7 +79,7 @@ export class BattleService {
   }
 
   // Helper method to get the winner's name from their ID
-  async getWinnerName(winnerId: string) {
+  async getWinnerName(winnerId: string): Promise<string | null>  {
     const winner = await this.battleRepository.findCharacterById(winnerId);
     return winner ? winner.user.username : null;
   }
@@ -118,7 +119,7 @@ export class BattleService {
   }
 
   // Method to finish the battle and award experience points to both players
-  private async finishBattle(battle: Battle, winner: Character) {
+  private async finishBattle(battle: Battle, winner: Character): Promise<Battle> {
     const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
 
     battle.winnerId = winner.id;
