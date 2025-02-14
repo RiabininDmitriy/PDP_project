@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Not, Repository } from 'typeorm';
 import { Character } from 'src/entities/character.entity';
 
 @Injectable()
@@ -12,7 +12,6 @@ export class CharactersRepository extends Repository<Character> {
     super(characterRepository.target, characterRepository.manager, characterRepository.queryRunner);
   }
 
-  // find why array
   //change any to DTO
   async createCharacter(characterData: any): Promise<Character[]> {
     const character = this.characterRepository.create(characterData);
@@ -31,5 +30,14 @@ export class CharactersRepository extends Repository<Character> {
 
   async saveCharacter(character: Character) {
     return this.characterRepository.save(character);
+  }
+
+  async findOpponents(characterId: string, gearScore: number): Promise<Character[]> {
+    return this.characterRepository.find({
+      where: {
+        gearScore: Between(gearScore - 80, gearScore + 80),
+        id: Not(characterId),
+      },
+    });
   }
 }

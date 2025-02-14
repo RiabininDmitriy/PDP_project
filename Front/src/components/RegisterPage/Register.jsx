@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './register.css';
 import api from '../../api/api';
+import Cookies from 'js-cookie';
+
 const Register = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
@@ -15,8 +17,10 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/auth/register', formData);
-      navigate('/character-classes');
+      const response = await api.post('/auth/register', formData);
+      const userId = response.data.user.id;
+      Cookies.set('userId', userId, { expires: 1 });
+      navigate(`/character-classes`);
     } catch (error) {
       if (error.response && error.response.data) {
         setError(error.response.data.message);

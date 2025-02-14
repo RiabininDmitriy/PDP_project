@@ -1,29 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, Not, EntityManager } from 'typeorm';
+import { Repository, EntityManager } from 'typeorm';
 import { Battle } from 'src/entities/battle.entity';
 import { BattleLog } from 'src/entities/battle-log.entity';
 import { Character } from 'src/entities/character.entity';
 import { CharacterService } from '../characters/characters.service';
 import { logger } from 'src/utils/logger.service';
+import { BattleRepository } from './battle.repo';
 
 @Injectable()
 export class BattleService {
   constructor(
-    @InjectRepository(Battle)
-    private readonly battleRepository: Repository<Battle>,
+    private readonly battleRepository: BattleRepository,
 
     @InjectRepository(BattleLog)
     private readonly battleLogRepository: Repository<BattleLog>,
 
-    @InjectRepository(Character)
-    private readonly characterRepository: Repository<Character>,
-
     private readonly characterService: CharacterService,
+
+    private readonly entityManager: EntityManager,
+
   ) {}
 
+// In BattleService:
   async findOpponentAndStartBattle(characterId: string) {
-    const player = await this.characterRepository.findOne({ where: { id: characterId } });
+
+    const player = await this.battleRepository.findCharacterById(characterId);
+    
     logger.log('findOpponentAndStartBattle', characterId);
 
     if (!player) {
@@ -31,15 +34,7 @@ export class BattleService {
       return { status: 'error', message: 'Player not found' };
     }
 
-    const minGearScore = player.gearScore - 80;
-    const maxGearScore = player.gearScore + 80;
-
-    const opponents = await this.characterRepository.find({
-      where: {
-        gearScore: Between(minGearScore, maxGearScore),
-        id: Not(characterId),
-      },
-    });
+    const opponents = await this.battleRepository.findOpponents(characterId, player.gearScore);
 
     if (opponents.length === 0) {
       return { status: 'searching' }; 
@@ -47,23 +42,13 @@ export class BattleService {
 
     const randomOpponent = opponents[Math.floor(Math.random() * opponents.length)];
 
-    const battle = this.battleRepository.create({
-      playerOne: player,
-      playerTwo: randomOpponent,
-      playerOneHp: player.hp,
-      playerTwoHp: randomOpponent.hp,
-    });
-
-    await this.battleRepository.save(battle);
+    const battle = await this.battleRepository.createBattle(player, randomOpponent);
 
     return { status: 'found', battleId: battle.id };
   }
 
   async getBattleStatus(battleId: string) {
-    const battle = await this.battleRepository.findOne({
-      where: { id: battleId },
-      relations: ['playerOne', 'playerTwo'],
-    });
+    const battle = await this.battleRepository.getBattleById(battleId);
 
     if (!battle) {
       logger.error('Battle not found');
@@ -73,9 +58,8 @@ export class BattleService {
     let winnerName = null;
 
     if (battle.winnerId) {
-      // Fetch the winner's character details to get the winner's name
-      const winner = await this.characterRepository.findOne({ where: { id: battle.winnerId } });
-      winnerName = winner ? winner.user.username : null; // Adjust this line if winner's name is stored differently
+      const winner = await this.battleRepository.findCharacterById(battle.winnerId);
+      winnerName = winner ? winner.user.username : null;
     }
 
     if (battle.winnerId) {
@@ -93,10 +77,8 @@ export class BattleService {
   }
 
   async processBattleRound(battleId: string) {
-    const battle = await this.battleRepository.findOne({
-      where: { id: battleId },
-      relations: ['playerOne', 'playerTwo'],
-    });
+    const battle = await this.battleRepository.getBattleById(battleId);
+
 
     if (!battle || battle.winnerId) return battle;
 
@@ -125,42 +107,23 @@ export class BattleService {
     }
 
     // Save the battle state after the round
-    return await this.battleRepository.save(battle);
+    return await this.battleRepository.saveBattle(battle);
   }
 
-	// private async finishBattle(battle: Battle, winner: Character) {
-  //   const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
-  //   battle.winnerId = winner.id;
-  //   battle.winnerName = winner.user.username; // Set the winner's name
+  private async finishBattle(battle: Battle, winner: Character) {
+    const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
 
-  //   // Add experience for both players
-  //   await this.characterService.addExperience(winner.id, 100); // Winner
-  //   await this.characterService.addExperience(loser.id, 50); // Loser
+    battle.winnerId = winner.id;
+    battle.winnerName = winner.user.username;
 
-  //   logger.log('Battle finished', battle);
-
-  //   return await this.battleRepository.save(battle);
-  // }
-
-
-private async finishBattle(battle: Battle, winner: Character) {
-  const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
-
-  battle.winnerId = winner.id;
-  battle.winnerName = winner.user.username; 
-
-  const transactionResult = await this.battleRepository.manager.transaction(
-    async (manager: EntityManager) => {
+    const transactionResult = await this.entityManager.transaction(async (manager) => {
       await manager.save(Battle, battle);
-
-      await this.characterService.addExperience(winner.id, 100, manager); 
+      await this.characterService.addExperience(winner.id, 100, manager);
       await this.characterService.addExperience(loser.id, 50, manager);
+      return battle;
+    });
 
-      return battle; 
-    },
-  );
-
-  logger.log('Battle finished', transactionResult);
-  return transactionResult;
-}
+    logger.log('Battle finished', transactionResult);
+    return transactionResult;
+  }
 }

@@ -40,6 +40,8 @@ const UserCharacter = () => {
 
   const handleLogOut = () => {
     Cookies.remove('userId');
+    Cookies.remove('token');
+    Cookies.remove('user');
     navigate('/');
   };
 

@@ -22,6 +22,7 @@ import { BattleModule } from './modules/battle/battle.module';
 import { BattleController } from './modules/battle/battle.controller';
 import { Battle } from './entities/battle.entity';
 import { BattleLog } from './entities/battle-log.entity';
+import { BattleRepository } from './modules/battle/battle.repo';
 
 dotenv.config();
 @Module({
@@ -54,6 +55,7 @@ dotenv.config();
     CharacterService,
     CharactersRepository,
     BattleService,
+    BattleRepository,
   ],
 })
 export class AppModule { }
