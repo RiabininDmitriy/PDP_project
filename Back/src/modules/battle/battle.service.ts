@@ -18,15 +18,12 @@ export class BattleService {
 
     private readonly characterService: CharacterService,
 
-    private readonly entityManager: EntityManager,
-
+    private readonly entityManager: EntityManager
   ) {}
 
-// In BattleService:
+  // Method to find an opponent for the given character and start a battle
   async findOpponentAndStartBattle(characterId: string) {
-
     const player = await this.battleRepository.findCharacterById(characterId);
-    
     logger.log('findOpponentAndStartBattle', characterId);
 
     if (!player) {
@@ -34,19 +31,24 @@ export class BattleService {
       return { status: 'error', message: 'Player not found' };
     }
 
+    // Find potential opponents based on gear score
     const opponents = await this.battleRepository.findOpponents(characterId, player.gearScore);
 
+    // If no opponents are found, return 'searching' status
     if (opponents.length === 0) {
-      return { status: 'searching' }; 
+      return { status: 'searching' };
     }
 
+    // Randomly select an opponent
     const randomOpponent = opponents[Math.floor(Math.random() * opponents.length)];
 
+    // Create a battle between the player and the opponent
     const battle = await this.battleRepository.createBattle(player, randomOpponent);
 
     return { status: 'found', battleId: battle.id };
   }
 
+  // Method to get the status of a battle
   async getBattleStatus(battleId: string) {
     const battle = await this.battleRepository.getBattleById(battleId);
 
@@ -56,29 +58,34 @@ export class BattleService {
     }
 
     let winnerName = null;
-
+    // If there's a winner, fetch the winner's name
     if (battle.winnerId) {
-      const winner = await this.battleRepository.findCharacterById(battle.winnerId);
-      winnerName = winner ? winner.user.username : null;
+      winnerName = await this.getWinnerName(battle.winnerId);
     }
 
     if (battle.winnerId) {
       logger.log('Battle finished');
-      return { 
-        status: 'finished', 
-        winnerId: battle.winnerId, 
-        winnerName: winnerName,
-        battle: battle
+      return {
+        status: 'finished',
+        winnerId: battle.winnerId,
+        winnerName,
+        battle: battle,
       };
     }
 
     logger.log('Battle in progress');
-    return { status: 'in_progress', battle, winnerName: winnerName };
+    return { status: 'in_progress', battle, winnerName };
   }
 
-  async processBattleRound(battleId: string) {
-    const battle = await this.battleRepository.getBattleById(battleId);
+  // Helper method to get the winner's name from their ID
+  async getWinnerName(winnerId: string) {
+    const winner = await this.battleRepository.findCharacterById(winnerId);
+    return winner ? winner.user.username : null;
+  }
 
+  // Method to process a battle round (e.g., apply damage and update the battle state)
+  async processBattleRound(battleId: string): Promise<Battle> {
+    const battle = await this.battleRepository.getBattleById(battleId);
 
     if (!battle || battle.winnerId) return battle;
 
@@ -86,7 +93,7 @@ export class BattleService {
     const defender = attacker === battle.playerOne ? battle.playerTwo : battle.playerOne;
     const damage = Math.floor(Math.random() * (attacker.normalAttack - 2)) + 2;
 
-    // Apply damage
+    // Apply damage to the defender's HP
     if (defender.id === battle.playerOne.id) {
       battle.playerOneHp = Math.max(0, battle.playerOneHp - damage);
     } else {
@@ -100,16 +107,17 @@ export class BattleService {
       damage,
     });
 
-    // If either player's health reaches 0, finish the battle
+    // Check if any player has lost (HP <= 0) and finish the battle if so
     if (battle.playerOneHp <= 0 || battle.playerTwoHp <= 0) {
       const winner = battle.playerOneHp > 0 ? battle.playerOne : battle.playerTwo;
       return await this.finishBattle(battle, winner);
     }
 
-    // Save the battle state after the round
+    // Save the updated battle state
     return await this.battleRepository.saveBattle(battle);
   }
 
+  // Method to finish the battle and award experience points to both players
   private async finishBattle(battle: Battle, winner: Character) {
     const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
 
