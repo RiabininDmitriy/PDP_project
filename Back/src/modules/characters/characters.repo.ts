@@ -12,7 +12,6 @@ export class CharactersRepository extends Repository<Character> {
     super(characterRepository.target, characterRepository.manager, characterRepository.queryRunner);
   }
 
-  //change any to DTO
   async createCharacter(characterData: any): Promise<Character[]> {
     const character = this.characterRepository.create(characterData);
     return this.characterRepository.save(character);

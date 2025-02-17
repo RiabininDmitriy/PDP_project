@@ -14,6 +14,7 @@ export class BattleService {
   constructor(
     private readonly battleRepository: BattleRepository,
 
+    // TODO: move logic into repo (BATTLE LOG)
     @InjectRepository(BattleLog)
     private readonly battleLogRepository: Repository<BattleLog>,
 
@@ -22,31 +23,13 @@ export class BattleService {
     private readonly entityManager: EntityManager
   ) {}
 
-  // Method to find an opponent for the given character and start a battle
-  async findOpponentAndStartBattle(characterId: string): Promise<FindOpponentResponseDto> {
-    const player = await this.battleRepository.findCharacterById(characterId);
-    logger.log('findOpponentAndStartBattle', characterId);
+  async startBattle(userId: number, opponentId: string): Promise<Battle> {
+    const player = await this.characterService.getCharacter(userId);
+    const opponent = await this.characterService.getOpponent(opponentId);
+    const battle = await this.battleRepository.createBattle(player, opponent.opponent);
+    logger.log('Battle started', battle);
 
-    if (!player) {
-      logger.error('Player not found');
-      return { status: 'error', message: 'Player not found' };
-    }
-
-    // Find potential opponents based on gear score
-    const opponents = await this.battleRepository.findOpponents(characterId, player.gearScore);
-
-    // If no opponents are found, return 'searching' status
-    if (opponents.length === 0) {
-      return { status: 'searching' };
-    }
-
-    // Randomly select an opponent
-    const randomOpponent = opponents[Math.floor(Math.random() * opponents.length)];
-
-    // Create a battle between the player and the opponent
-    const battle = await this.battleRepository.createBattle(player, randomOpponent);
-
-    return { status: 'found', battleId: battle.id };
+    return battle;
   }
 
   // Method to get the status of a battle
@@ -59,29 +42,25 @@ export class BattleService {
     }
 
     let winnerName = null;
-    // If there's a winner, fetch the winner's name
+  
     if (battle.winnerId) {
-      winnerName = await this.getWinnerName(battle.winnerId);
+      winnerName = await this.characterService.getWinnerName(battle.winnerId);
     }
 
     if (battle.winnerId) {
       logger.log('Battle finished');
       return {
+        // TODO: винесті всі строки в енам
         status: 'finished',
         winnerId: battle.winnerId,
         winnerName,
         battle: battle,
       };
     }
+    
 
     logger.log('Battle in progress');
     return { status: 'in_progress', battle, winnerName };
-  }
-
-  // Helper method to get the winner's name from their ID
-  async getWinnerName(winnerId: string): Promise<string | null>  {
-    const winner = await this.battleRepository.findCharacterById(winnerId);
-    return winner ? winner.user.username : null;
   }
 
   // Method to process a battle round (e.g., apply damage and update the battle state)
@@ -128,6 +107,8 @@ export class BattleService {
     const transactionResult = await this.entityManager.transaction(async (manager) => {
       await manager.save(Battle, battle);
       await this.characterService.addExperience(winner.id, 100, manager);
+      //Перевірити чи зберігаються дані в базу якщо помилка після першого збереження.
+      // throw new Error('test');
       await this.characterService.addExperience(loser.id, 50, manager);
       return battle;
     });

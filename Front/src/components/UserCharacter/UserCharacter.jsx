@@ -20,6 +20,7 @@ const Image = styled.img`
 const UserCharacter = () => {
   const { userId } = useParams(); 
   const [character, setCharacter] = useState(null);
+  const [opponent, setOpponent] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,17 +48,32 @@ const UserCharacter = () => {
 
   const handleStartBattle = async () => {
     try {
-      const response = await api.post(`/battle/find-opponent/${userId}/${character.id}`);
-      const data = response.data;
-      if (data.status === 'found') {
-        navigate(`/battle/${data.battleId}`);
-      } else if (data.status === 'searching') {
-        console.log('Looking for an opponent...');
-      } else {
-        console.error('No opponents found');
+      const opponentId = opponent.opponent.id;
+      const battleData = await api.get(`/battle/users/${userId}/opponent/${opponentId}/getBattleId`);
+
+      if (battleData.data.id ) {
+        const response = await api.post(`/battle/users/${userId}/characters/${character.id}/battle/${battleData.data.id}/start`);
+        const data = response.data;
+        Cookies.set('battleId', battleData.data.id);
+        if (data.status === 'in_progress') {
+          navigate(`/battle/${data.battleId}`);
+        } else if (data.status === 'searching') {
+          console.log('Looking for an opponent...');
+        } else {
+          console.error('No opponents found');
+        }
       }
     } catch (error) {
       console.error('Error starting battle', error);
+    }
+  };
+
+  const handleGetOpponent = async () => {
+    try {
+      const response = await api.get(`/characters/${character.id}/users/${userId}/opponent`);
+      setOpponent(response.data);
+    } catch (error) {
+      console.error('Error getting opponent', error);
     }
   };
 
@@ -73,7 +89,10 @@ const UserCharacter = () => {
       <p>Level: {character.level}</p>
       <p>GearScore: {character.gearScore}</p>
 
-      <button onClick={handleStartBattle}>Start Battle</button>
+      <button onClick={handleGetOpponent}>Get Opponent</button>
+      {opponent.status === 'found' && <p>Opponent: {opponent.opponent.user.username}</p>}
+      {opponent.status === 'found' && <p>Opponent GearScore: {opponent.opponent.gearScore}</p>}
+      {opponent.status === 'found' && <button onClick={handleStartBattle}>Start Battle</button>}
       <button style={{ marginTop: '40px', backgroundColor:'red' }} onClick={handleLogOut}>Log Out</button>
     </Container>
   );

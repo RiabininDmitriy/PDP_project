@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Battle } from 'src/entities/battle.entity';
 import { Character } from 'src/entities/character.entity';
-import { CharactersRepository } from '../characters/characters.repo';
 
 @Injectable()
 export class BattleRepository extends Repository<Battle> {
@@ -11,22 +10,8 @@ export class BattleRepository extends Repository<Battle> {
     @InjectRepository(Battle)
     private readonly battleRepository: Repository<Battle>,
     
-    private readonly characterRepository: CharactersRepository
   ) {
     super(battleRepository.target, battleRepository.manager, battleRepository.queryRunner);
-  }
-
-  // Method to find a Character by its ID using CharactersRepository
-  async findCharacterById(characterId: string): Promise<Character | null> {
-    console.log(characterId);
-    // Calls the findCharacterById method from the CharactersRepository to retrieve the Character
-    return this.characterRepository.findCharacterById(characterId);
-  }
-
-  // Method to find potential opponents for the given character based on gearScore
-  async findOpponents(characterId: string, gearScore: number): Promise<Character[]> {
-    // Calls findOpponents method from the CharactersRepository to get characters with a similar gearScore
-    return this.characterRepository.findOpponents(characterId, gearScore);
   }
 
   async createBattle(playerOne: Character, playerTwo: Character): Promise<Battle> {

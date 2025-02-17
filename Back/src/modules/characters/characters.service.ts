@@ -7,6 +7,7 @@ import { CharacterClass } from '../../entities/utils/characters.types';
 import { calculateGearScore } from 'src/utils/utils';
 import { CharactersRepository } from './characters.repo';
 import { EntityManager } from 'typeorm';
+import { FindOpponentResponseDto } from './dto/characters.dto';
 
 @Injectable()
 export class CharacterService {
@@ -69,6 +70,7 @@ export class CharacterService {
 
     character.xp += xpGained;
 
+    //TODO: винести підрахунки до того як виконується транзакція
     while (character.xp >= this.getXpThreshold(character.level)) {
       character.xp -= this.getXpThreshold(character.level);
       character.level++;
@@ -86,5 +88,33 @@ export class CharacterService {
 
       return { character1, character2 };
     });
+  }
+
+  async getOpponent(characterId: string): Promise<FindOpponentResponseDto> {
+    const player = await this.charactersRepository.findCharacterById(characterId);
+    logger.log('findOpponentAndStartBattle', characterId);
+
+    if (!player) {
+      logger.error('Player not found');
+      return { status: 'error', message: 'Player not found' };
+    }
+
+    // Find potential opponents based on gear score
+    const opponents = await this.charactersRepository.findOpponents(characterId, player.gearScore);
+
+    // If no opponents are found, return 'searching' status
+    if (opponents.length === 0) {
+      return { status: 'searching' };
+    }
+
+    // Randomly select an opponent
+    const randomOpponent = opponents[Math.floor(Math.random() * opponents.length)];
+
+    return { status: 'found', opponent: randomOpponent };
+  }
+
+  async getWinnerName(winnerId: string): Promise<string | null>  {
+    const winner = await this.charactersRepository.findCharacterById(winnerId);
+    return winner ? winner.user.username : null;
   }
 }

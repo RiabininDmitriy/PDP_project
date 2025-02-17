@@ -1,5 +1,6 @@
-import { IsEnum, IsInt, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { CharacterClass } from '../../../entities/utils/characters.types';
+import { Character } from 'src/entities/character.entity';
 
 export class CreateCharacterDto {
   @IsInt()
@@ -14,4 +15,23 @@ export class GetCharacterDto {
   @IsInt()
   @Min(1)
   userId: number;
+}
+
+export class GetOpponentDto {
+  @IsString()
+  characterId: string;
+}
+
+export class FindOpponentResponseDto {
+  @IsString()
+  status: string;
+
+  @IsOptional()
+  battleId?: string;
+
+  @IsOptional()
+  message?: string;
+
+  @IsOptional()
+  opponent?: Character;
 }

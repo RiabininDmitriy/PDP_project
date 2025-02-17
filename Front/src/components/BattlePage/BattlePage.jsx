@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/api";
 import Cookies from "js-cookie";
 
 const BattlePage = () => {
-  const { battleId } = useParams();
   const [searching, setSearching] = useState(false);
   const [battleData, setBattleData] = useState(null);
   const [battleFinished, setBattleFinished] = useState(false); // Track if the battle is finished
   const [playerStats, setPlayerStats] = useState(null); // Store player stats after battle
   const userId = Cookies.get("userId");
+  const battleId = Cookies.get("battleId");
   const navigate = useNavigate();
   
   const startBattle = async () => {
     try {
-      const response = await api.post(`/battle/start/${userId}/${battleId}`);
+      const response = await api.get(`/battle/users/${userId}/characters/${battleId}/battle/${battleId}/status`);;
       const data = response.data; // Axios puts response data in the `data` field.
 
       if (data.status === "searching") {
@@ -30,8 +30,8 @@ const BattlePage = () => {
   const startPollingBattle = (id) => {
     const interval = setInterval(async () => {
       try {
-        const response = await api.post(`/battle/round/${userId}/${battleId}`);
-        const status = await api.get(`/battle/status/${userId}/${battleId}`);
+        const response = await api.post(`/battle/users/${userId}/characters/${battleId}/battle/${battleId}/round`);
+        const status = await api.get(`/battle/users/${userId}/characters/${battleId}/battle/${battleId}/status`);
 
         const data = response.data;
         setBattleData(data);
