@@ -7,7 +7,8 @@ import { Character } from 'src/entities/character.entity';
 import { CharacterService } from '../characters/characters.service';
 import { logger } from 'src/utils/logger.service';
 import { BattleRepository } from './battle.repo';
-import { BattleStatusResponseDto, FindOpponentResponseDto } from './dto/battle.dto';
+import { BattleStatus, BattleStatusResponseDto, FindOpponentResponseDto } from './dto/battle.dto';
+import { BATTLE_FINISHED_MESSAGE, BATTLE_IN_PROGRESS_MESSAGE, BATTLE_NOT_FOUND_MESSAGE, BATTLE_STARTED_MESSAGE, LOSER_EXPERIENCE_POINTS, WINNER_EXPERIENCE_POINTS } from './constants';
 
 @Injectable()
 export class BattleService {
@@ -27,7 +28,8 @@ export class BattleService {
     const player = await this.characterService.getCharacter(userId);
     const opponent = await this.characterService.getOpponent(opponentId);
     const battle = await this.battleRepository.createBattle(player, opponent.opponent);
-    logger.log('Battle started', battle);
+
+    logger.log(BATTLE_STARTED_MESSAGE, battle);
 
     return battle;
   }
@@ -37,8 +39,8 @@ export class BattleService {
     const battle = await this.battleRepository.getBattleById(battleId);
 
     if (!battle) {
-      logger.error('Battle not found');
-      return { status: 'error', message: 'Battle not found' };
+      logger.error(BATTLE_NOT_FOUND_MESSAGE);
+      return { status: BattleStatus.Error, message: BATTLE_NOT_FOUND_MESSAGE };
     }
 
     let winnerName = null;
@@ -48,10 +50,11 @@ export class BattleService {
     }
 
     if (battle.winnerId) {
-      logger.log('Battle finished');
+
+      logger.log(BATTLE_FINISHED_MESSAGE);
+
       return {
-        // TODO: винесті всі строки в енам
-        status: 'finished',
+        status: BattleStatus.Finished,
         winnerId: battle.winnerId,
         winnerName,
         battle: battle,
@@ -59,8 +62,9 @@ export class BattleService {
     }
     
 
-    logger.log('Battle in progress');
-    return { status: 'in_progress', battle, winnerName };
+    logger.log(BATTLE_IN_PROGRESS_MESSAGE);
+
+    return { status: BattleStatus.InProgress, battle, winnerName };
   }
 
   // Method to process a battle round (e.g., apply damage and update the battle state)
@@ -90,6 +94,7 @@ export class BattleService {
     // Check if any player has lost (HP <= 0) and finish the battle if so
     if (battle.playerOneHp <= 0 || battle.playerTwoHp <= 0) {
       const winner = battle.playerOneHp > 0 ? battle.playerOne : battle.playerTwo;
+
       return await this.finishBattle(battle, winner);
     }
 
@@ -106,14 +111,14 @@ export class BattleService {
 
     const transactionResult = await this.entityManager.transaction(async (manager) => {
       await manager.save(Battle, battle);
-      await this.characterService.addExperience(winner.id, 100, manager);
-      //Перевірити чи зберігаються дані в базу якщо помилка після першого збереження.
-      // throw new Error('test');
-      await this.characterService.addExperience(loser.id, 50, manager);
+      await this.characterService.addExperience(winner.id, WINNER_EXPERIENCE_POINTS, manager);
+      await this.characterService.addExperience(loser.id, LOSER_EXPERIENCE_POINTS, manager);
+
       return battle;
     });
 
-    logger.log('Battle finished', transactionResult);
+    logger.log(BATTLE_FINISHED_MESSAGE, transactionResult);
+
     return transactionResult;
   }
 }

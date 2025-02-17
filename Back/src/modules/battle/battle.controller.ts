@@ -45,5 +45,3 @@ export class BattleController {
     return this.battleService.startBattle(userId, opponentId);
   }
 }
-
-// подумать над логікой заранєє прорахувати всю битву а потім віддавати по шматку

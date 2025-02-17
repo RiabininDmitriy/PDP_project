@@ -59,3 +59,9 @@ export class FindOpponentResponseDto {
   @IsOptional()
   message?: string;
 }
+
+export enum BattleStatus {
+  InProgress = 'in_progress',
+  Finished = 'finished',
+  Error = 'error'
+}
