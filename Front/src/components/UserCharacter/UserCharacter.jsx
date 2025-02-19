@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom'; 
-import api from '../../api/api';
-import styled from 'styled-components';
-import Cookies from 'js-cookie';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import api from "../../api/api";
+import styled from "styled-components";
+import Cookies from "js-cookie";
 
 const Container = styled.div`
   display: flex;
@@ -18,7 +18,7 @@ const Image = styled.img`
 `;
 
 const UserCharacter = () => {
-  const { userId } = useParams(); 
+  const { userId } = useParams();
   const [character, setCharacter] = useState(null);
   const [opponent, setOpponent] = useState({});
   const navigate = useNavigate();
@@ -29,51 +29,46 @@ const UserCharacter = () => {
         const response = await api.get(`/characters/${userId}`);
         setCharacter(response.data);
       } catch (error) {
-        console.error('Error fetching character', error);
+        console.error("Error fetching character", error);
       }
     };
     fetchCharacter();
-  }, [userId]); 
+  }, [userId]);
 
   if (!character) {
     return <div>Loading...</div>;
   }
 
   const handleLogOut = () => {
-    Cookies.remove('userId');
-    Cookies.remove('token');
-    Cookies.remove('user');
-    navigate('/');
+    Cookies.remove("userId");
+    Cookies.remove("token");
+    Cookies.remove("user");
+    navigate("/");
   };
 
   const handleStartBattle = async () => {
-    try {
-      const opponentId = opponent.opponent.id;
-      const battleData = await api.get(`/battle/users/${userId}/opponent/${opponentId}/getBattleId`);
+    const opponentId = opponent.opponent.id;
+    const battleData = await api.get(
+      `/battle/users/${userId}/opponent/${opponentId}/getBattleId`
+    );
+    Cookies.set("battleId", battleData.data.id);
+    const res = await api.post(
+      `/battle/users/${userId}/characters/${character.id}/battle/${battleData.data.id}/round/`
+    );
 
-      if (battleData.data.id ) {
-        const response = await api.post(`/battle/users/${userId}/characters/${character.id}/battle/${battleData.data.id}/start`);
-        const data = response.data;
-        Cookies.set('battleId', battleData.data.id);
-        if (data.status === 'in_progress') {
-          navigate(`/battle/${data.battleId}`);
-        } else if (data.status === 'searching') {
-          console.log('Looking for an opponent...');
-        } else {
-          console.error('No opponents found');
-        }
-      }
-    } catch (error) {
-      console.error('Error starting battle', error);
-    }
+    Cookies.set("characterId", character.id);
+
+    navigate(`/battle/${battleData.data.id}`);
   };
 
   const handleGetOpponent = async () => {
     try {
-      const response = await api.get(`/characters/${character.id}/users/${userId}/opponent`);
+      const response = await api.get(
+        `/characters/${character.id}/users/${userId}/opponent`
+      );
       setOpponent(response.data);
     } catch (error) {
-      console.error('Error getting opponent', error);
+      console.error("Error getting opponent", error);
     }
   };
 
@@ -90,10 +85,21 @@ const UserCharacter = () => {
       <p>GearScore: {character.gearScore}</p>
 
       <button onClick={handleGetOpponent}>Get Opponent</button>
-      {opponent.status === 'found' && <p>Opponent: {opponent.opponent.user.username}</p>}
-      {opponent.status === 'found' && <p>Opponent GearScore: {opponent.opponent.gearScore}</p>}
-      {opponent.status === 'found' && <button onClick={handleStartBattle}>Start Battle</button>}
-      <button style={{ marginTop: '40px', backgroundColor:'red' }} onClick={handleLogOut}>Log Out</button>
+      {opponent.status === "found" && (
+        <p>Opponent: {opponent.opponent.user.username}</p>
+      )}
+      {opponent.status === "found" && (
+        <p>Opponent GearScore: {opponent.opponent.gearScore}</p>
+      )}
+      {opponent.status === "found" && (
+        <button onClick={handleStartBattle}>Start Battle</button>
+      )}
+      <button
+        style={{ marginTop: "40px", backgroundColor: "red" }}
+        onClick={handleLogOut}
+      >
+        Log Out
+      </button>
     </Container>
   );
 };

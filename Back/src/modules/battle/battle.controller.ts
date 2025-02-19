@@ -20,21 +20,11 @@ export class BattleController {
 
   // This route checks the current status of a battle (whether it's finished or in progress).
   @UseGuards(AuthGuard('jwt'), PersonalGuard)
-  @Get('users/:userId/characters/:characterId/battle/:battleId/status')
+  @Get('users/:userId/characters/:characterId/battle/:battleId/round/status')
   async getBattleStatus(@Param('battleId', ParseUUIDPipe) battleId: string, @Param('userId') userId: string): Promise<BattleStatusResponseDto> {
     logger.log('getBattleStatus', battleId);
 
     return await this.battleService.getBattleStatus(battleId);
-  }
-
-  // This route starts the battle if it's not already finished and provides the winner details.
-  @UseGuards(AuthGuard('jwt'), PersonalGuard)
-  @Post('users/:userId/characters/:characterId/battle/:battleId/start')
-  async startBattle(@Param('battleId') battleId: string, @Param('userId') userId: string): Promise<BattleStatusResponseDto> {
-    const battleStatus = await this.battleService.getBattleStatus(battleId);
-    logger.log('startBattle', battleStatus);
-
-    return battleStatus;
   }
 
   @UseGuards(AuthGuard('jwt'), PersonalGuard)

@@ -1,4 +1,5 @@
 import { IsString, IsUUID, IsOptional } from 'class-validator';
+import { BattleLog } from 'src/entities/battle-log.entity';
 import { Battle } from 'src/entities/battle.entity';
 
 // DTO for findOpponent route
@@ -47,6 +48,12 @@ export class BattleStatusResponseDto {
 
   @IsOptional()
   battleId?: string;
+
+  @IsOptional()
+  currentRound?: number;
+
+  @IsOptional()
+  battleLog?: BattleLog;
 }
 
 export class FindOpponentResponseDto {

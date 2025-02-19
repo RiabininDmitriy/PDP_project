@@ -8,48 +8,33 @@ const BattlePage = () => {
   const [battleData, setBattleData] = useState(null);
   const [battleFinished, setBattleFinished] = useState(false); // Track if the battle is finished
   const [playerStats, setPlayerStats] = useState(null); // Store player stats after battle
+  const [ownerHp, setOwnerHp] = useState(0);
+  const [opponentHp, setOpponentHp] = useState(0);
+  const [currentRound, setCurrentRound] = useState(1);
+  const [battleLogs, setBattleLogs] = useState([]);  
+
   const userId = Cookies.get("userId");
   const battleId = Cookies.get("battleId");
+  const characterId = Cookies.get("characterId");
   const navigate = useNavigate();
-  
+
   const startBattle = async () => {
     try {
-      const response = await api.get(`/battle/users/${userId}/characters/${battleId}/battle/${battleId}/status`);;
-      const data = response.data; // Axios puts response data in the `data` field.
+      const res = await api.post(
+        `/battle/users/${userId}/characters/${characterId}/battle/${battleId}/round/`
+      );
 
-      if (data.status === "searching") {
-        setSearching(true);
-      } else if (data.status === "in_progress") {
-        startPollingBattle(data.battleId);
-      }
+      const response = await api.get(
+        `/battle/users/${userId}/characters/${characterId}/battle/${battleId}/round/status`
+      );
+      setPlayerStats(res.data);
+      setSearching(false);
+      setBattleData(response.data);
+      setBattleLogs(response.data.battle.logs);
+      setCurrentRound(response.data.currentRound);
     } catch (error) {
       console.error("Error starting battle:", error);
     }
-  };
-
-  const startPollingBattle = (id) => {
-    const interval = setInterval(async () => {
-      try {
-        const response = await api.post(`/battle/users/${userId}/characters/${battleId}/battle/${battleId}/round`);
-        const status = await api.get(`/battle/users/${userId}/characters/${battleId}/battle/${battleId}/status`);
-
-        const data = response.data;
-        setBattleData(data);
-
-        if (status.data.status === "finished") {
-          clearInterval(interval);
-          setBattleFinished(true);
-          setPlayerStats(
-            data.winnerId === data.playerOne.id
-              ? data.playerOne
-              : data.playerTwo
-          ); // Set stats of the winner
-          console.log("Battle finished, winner:", data.winnerId);
-        }
-      } catch (error) {
-        console.error("Error polling battle status:", error);
-      }
-    }, 2000); // Increased interval to 2 seconds
   };
 
   const restartBattle = () => {
@@ -57,10 +42,15 @@ const BattlePage = () => {
   };
 
   useEffect(() => {
-    if (battleId) {
-      startBattle();
-    }
+    startBattle();
   }, [battleId]);
+
+  useEffect(() => {
+    if (battleData) {
+      setOwnerHp(playerStats.playerOne.hp);
+      setOpponentHp(playerStats.playerTwo.hp);
+    }
+  }, [battleData]);
 
   return (
     <div>
@@ -92,38 +82,38 @@ const BattlePage = () => {
           <h2>Battle in Progress</h2>
           <div style={{ display: "flex", justifyContent: "space-around" }}>
             <div>
-              <h3>Player 1: {battleData.playerOne.user.username}</h3>
+              <h3>Player 1: {playerStats.playerOne.user.username}</h3>
               <img
                 style={{ width: "100px", height: "100px" }}
-                src={battleData.playerOne.imageUrl}
+                src={playerStats.playerOne.imageUrl}
                 alt="Player 1"
               />
-              <p>Class: {battleData.playerOne.classType}</p>
+              <p>Class: {playerStats.playerOne.classType}</p>
               <p>
-                HP: {battleData.playerOneHp} / {battleData.playerOne.hp}
+                HP: {ownerHp} / {playerStats.playerOne.hp}
               </p>
-              <p>Gear Score: {battleData.playerOne.gearScore}</p>
-              <p>Level: {battleData.playerOne.level}</p>
-              <p>Normal Attack: {battleData.playerOne.normalAttack}</p>
-              <p>Heavy Attack: {battleData.playerOne.heavyAttack}</p>
-              <p>Defense: {battleData.playerOne.defense}</p>
+              <p>Gear Score: {playerStats.playerOne.gearScore}</p>
+              <p>Level: {playerStats.playerOne.level}</p>
+              <p>Normal Attack: {playerStats.playerOne.normalAttack}</p>
+              <p>Heavy Attack: {playerStats.playerOne.heavyAttack}</p>
+              <p>Defense: {playerStats.playerOne.defense}</p>
             </div>
             <div>
-              <h3>Player 2: {battleData.playerTwo.user.username}</h3>
+              <h3>Player 2: {playerStats.playerTwo.user.username}</h3>
               <img
                 style={{ width: "100px", height: "100px" }}
-                src={battleData.playerTwo.imageUrl}
+                src={playerStats.playerTwo.imageUrl}
                 alt="Player 2"
               />
-              <p>Class: {battleData.playerTwo.classType}</p>
+              <p>Class: {playerStats.playerTwo.classType}</p>
               <p>
-                HP: {battleData.playerTwoHp} / {battleData.playerTwo.hp}
+                HP: {opponentHp} / {playerStats.playerTwo.hp}
               </p>
-              <p>Gear Score: {battleData.playerTwo.gearScore}</p>
-              <p>Level: {battleData.playerTwo.level}</p>
-              <p>Normal Attack: {battleData.playerTwo.normalAttack}</p>
-              <p>Heavy Attack: {battleData.playerTwo.heavyAttack}</p>
-              <p>Defense: {battleData.playerTwo.defense}</p>
+              <p>Gear Score: {playerStats.playerTwo.gearScore}</p>
+              <p>Level: {playerStats.playerTwo.level}</p>
+              <p>Normal Attack: {playerStats.playerTwo.normalAttack}</p>
+              <p>Heavy Attack: {playerStats.playerTwo.heavyAttack}</p>
+              <p>Defense: {playerStats.playerTwo.defense}</p>
             </div>
           </div>
         </div>

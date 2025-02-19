@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Battle } from 'src/entities/battle.entity';
 import { Character } from 'src/entities/character.entity';
+import { BattleLog } from 'src/entities/battle-log.entity';
 
 @Injectable()
 export class BattleRepository extends Repository<Battle> {
@@ -36,5 +37,12 @@ export class BattleRepository extends Repository<Battle> {
 
   async saveBattle(battle: Battle): Promise<Battle> {
     return this.battleRepository.save(battle);
+  }
+
+  async findBattleWithLogs(battleId: string): Promise<Battle | undefined> {
+    return this.findOne({
+        where: { id: battleId },
+        relations: ["logs"]
+    });
   }
 }
