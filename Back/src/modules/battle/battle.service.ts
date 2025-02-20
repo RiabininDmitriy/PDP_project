@@ -7,7 +7,7 @@ import { Character } from 'src/entities/character.entity';
 import { CharacterService } from '../characters/characters.service';
 import { logger } from 'src/utils/logger.service';
 import { BattleRepository } from './battle.repo';
-import { BattleStatus, BattleStatusResponseDto, FindOpponentResponseDto } from './dto/battle.dto';
+import { BattleStatus, BattleStatusResponseDto } from './dto/battle.dto';
 import {
   BATTLE_FINISHED_MESSAGE,
   BATTLE_IN_PROGRESS_MESSAGE,
@@ -42,7 +42,7 @@ export class BattleService {
   }
 
   // Method to get the status of a battle by battleId and currentRound
-  async getBattleStatus(battleId: string, currentRound: number): Promise<any> {
+  async getBattleStatus(battleId: string, currentRound: number): Promise<BattleStatusResponseDto> {
     const battle = await this.battleRepository.findBattleWithLogs(battleId);
     if (!battle) {
       logger.error(BATTLE_NOT_FOUND_MESSAGE);
@@ -57,38 +57,38 @@ export class BattleService {
     if (!roundLog) {
       return {
         status: BattleStatus.Error,
-        message: "Round not found",
+        message: 'Round not found',
       };
     }
 
     const isFinished = roundLog.attackerHp <= 0 || roundLog.defenderHp <= 0 ? true : false;
-  
-    if (battle.winnerId && isFinished)  {
+
+    if (battle.winnerId && isFinished) {
       const winner = battle.winnerId === battle.playerOne.id ? battle.playerOne : battle.playerTwo;
       const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
       return {
-        status:  BattleStatus.Finished,
+        status: BattleStatus.Finished,
         message: BATTLE_FINISHED_MESSAGE,
         roundLog,
         winner: {
           id: winner.id,
           name: winner.user.username,
           experienceGained: WINNER_EXPERIENCE_POINTS,
-          currentLevel: winner.level 
+          currentLevel: winner.level,
         },
         loser: {
           id: loser.id,
           name: loser.user.username,
           experienceGained: LOSER_EXPERIENCE_POINTS,
-          currentLevel: loser.level 
-        }
+          currentLevel: loser.level,
+        },
       };
     }
-  
+
     return {
       status: BattleStatus.InProgress,
       message: BATTLE_IN_PROGRESS_MESSAGE,
-      roundLog
+      roundLog,
     };
   }
 
@@ -141,7 +141,6 @@ export class BattleService {
 
   // Method to finish the battle and award experience points to both players
   private async finishBattle(battle: Battle, winner: Character): Promise<Battle> {
-    console.log('battle',battle);
     const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
 
     battle.winnerId = winner.id;

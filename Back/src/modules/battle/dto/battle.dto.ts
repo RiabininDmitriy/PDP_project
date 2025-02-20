@@ -30,31 +30,6 @@ export class ProcessRoundDto {
 }
 
 // Response DTO for battle status
-export class BattleStatusResponseDto {
-  @IsString()
-  status?: string;
-
-  @IsOptional()
-  winnerId?: string;
-
-  @IsOptional()
-  winnerName?: string;
-
-  @IsOptional()
-  battle?: Battle;
-
-  @IsOptional()
-  message?: string;
-
-  @IsOptional()
-  battleId?: string;
-
-  @IsOptional()
-  currentRound?: number;
-
-  @IsOptional()
-  battleLog?: BattleLog;
-}
 
 export class FindOpponentResponseDto {
   @IsString()
@@ -71,4 +46,55 @@ export enum BattleStatus {
   InProgress = 'in_progress',
   Finished = 'finished',
   Error = 'error'
+}
+
+export class BattleStatusResponseDto {
+  @IsString()
+  status: string;
+
+  @IsOptional()
+  message?: string;
+
+  @IsOptional()
+  winnerId?: string;
+
+  @IsOptional()
+  winnerName?: string;
+
+  @IsOptional()
+  battle?: Battle;
+
+  @IsOptional()
+  battleLog?: BattleLog;
+
+  @IsOptional()
+  currentRound?: number;
+
+  @IsOptional()
+  isFinished?: boolean;
+
+  @IsOptional()
+  isError?: boolean;
+
+  @IsOptional()
+  isInProgress?: boolean;
+
+  @IsOptional()
+  roundLog?: BattleLog;
+
+  @IsOptional()
+  winner?: {
+    id: string;
+    name: string;
+    experienceGained: number;
+    currentLevel: number;
+  };
+
+  @IsOptional()
+  loser?: {
+    id: string;
+    name: string;
+    experienceGained: number;
+    currentLevel: number;
+  };
 }

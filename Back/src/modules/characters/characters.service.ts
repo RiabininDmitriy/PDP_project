@@ -51,14 +51,15 @@ export class CharacterService {
     return Math.floor(100 * Math.pow(1.2, level - 1)); // Each level requires more XP
   }
 
-  private levelUpCharacter(character: Character) {
-    // Increases character's stats upon leveling up
-    character.hp += 10; // Increase health points
-    character.normalAttack += 2; // Increase normal attack power
-    character.heavyAttack += 3; // Increase heavy attack power
-    character.defense += 1; // Increase defense
-    character.gearScore = Math.round(calculateGearScore(character)); // Update gear score based on new stats
-    character.money += 10;
+  private levelUpCharacter(character: Character, levelsGained: number) {
+    for (let i = 0; i < levelsGained; i++) {
+      character.hp += 10;
+      character.normalAttack += 2;
+      character.heavyAttack += 3;
+      character.defense += 1;
+      character.gearScore = Math.round(calculateGearScore(character));
+      character.money += 10;
+    }
   }
 
   async addExperience(characterId: string, xpGained: number, manager: EntityManager) {
@@ -67,18 +68,24 @@ export class CharacterService {
     if (!character) {
       throw new Error('Character not found');
     }
-
+  
     character.xp += xpGained;
-
-    //TODO: винести підрахунки до того як виконується транзакція
+  
+    let levelsGained = 0;
     while (character.xp >= this.getXpThreshold(character.level)) {
       character.xp -= this.getXpThreshold(character.level);
       character.level++;
-      this.levelUpCharacter(character);
+      levelsGained++;
     }
-
-    await manager.save(Character, character);
-    return character;
+  
+    const transactionResult = await manager.transaction(async transactionManager => {
+      if (levelsGained > 0) {
+        this.levelUpCharacter(character, levelsGained);
+      }
+      await transactionManager.save(Character, character);
+    });
+  
+    return transactionResult;
   }
 
   async addExperienceForTwoCharacters(characterId1: string, xpGained1: number, characterId2: string, xpGained2: number) {
