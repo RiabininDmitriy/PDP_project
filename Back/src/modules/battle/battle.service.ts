@@ -41,39 +41,62 @@ export class BattleService {
     return battle;
   }
 
-  // Method to get the status of a battle
-  async getBattleStatus(battleId: string): Promise<BattleStatusResponseDto> {
+  // Method to get the status of a battle by battleId and currentRound
+  async getBattleStatus(battleId: string, currentRound: number): Promise<any> {
     const battle = await this.battleRepository.findBattleWithLogs(battleId);
-
     if (!battle) {
       logger.error(BATTLE_NOT_FOUND_MESSAGE);
       return { status: BattleStatus.Error, message: BATTLE_NOT_FOUND_MESSAGE };
     }
 
-    // Ensure battle.logs is an array before calling find or accessing length
     const battleLogs = Array.isArray(battle.logs) ? battle.logs : [];
+    const roundLogs = battleLogs.filter(log => Number(log.round) === Number(currentRound));
 
-    // If no specific log for the requested round, return the latest known status
-    const latestLog = battleLogs[battleLogs.length - 1] || null;
-    if (latestLog) {
-      logger.log(BATTLE_IN_PROGRESS_MESSAGE);
+    const roundLog = roundLogs.length > 0 ? roundLogs[0] : null;
+
+    if (!roundLog) {
       return {
-        battle,
-        currentRound: latestLog.round,
-      };
-    } else {
-      logger.log(BATTLE_IN_PROGRESS_MESSAGE);
-      return {
-        battle,
+        status: BattleStatus.Error,
+        message: "Round not found",
       };
     }
+
+    const isFinished = roundLog.attackerHp <= 0 || roundLog.defenderHp <= 0 ? true : false;
+  
+    if (battle.winnerId && isFinished)  {
+      const winner = battle.winnerId === battle.playerOne.id ? battle.playerOne : battle.playerTwo;
+      const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
+      return {
+        status:  BattleStatus.Finished,
+        message: BATTLE_FINISHED_MESSAGE,
+        roundLog,
+        winner: {
+          id: winner.id,
+          name: winner.user.username,
+          experienceGained: WINNER_EXPERIENCE_POINTS,
+          currentLevel: winner.level 
+        },
+        loser: {
+          id: loser.id,
+          name: loser.user.username,
+          experienceGained: LOSER_EXPERIENCE_POINTS,
+          currentLevel: loser.level 
+        }
+      };
+    }
+  
+    return {
+      status: BattleStatus.InProgress,
+      message: BATTLE_IN_PROGRESS_MESSAGE,
+      roundLog
+    };
   }
 
   // Method to process a battle round automatically
-  async processBattleRound(battleId: string): Promise<Battle> {
+  async processBattleRound(battleId: string): Promise<{ battle: Battle; rounds: number }> {
     const battle = await this.battleRepository.getBattleById(battleId);
 
-    if (!battle || battle.winnerId) return battle;
+    if (!battle || battle.winnerId) return { battle, rounds: 0 };
 
     let roundNumber = 0;
     let battleFinished = false;
@@ -95,10 +118,10 @@ export class BattleService {
         battle,
         attacker,
         attackerName: attacker.user.username,
-        attackerHp: attacker.hp,
+        attackerHp: battle.playerOneHp,
         defender,
         defenderName: defender.user.username,
-        defenderHp: defender.hp,
+        defenderHp: battle.playerTwoHp,
         damage,
         round: roundNumber,
       });
@@ -108,15 +131,17 @@ export class BattleService {
       if (battle.playerOneHp <= 0 || battle.playerTwoHp <= 0) {
         const winner = battle.playerOneHp > 0 ? battle.playerOne : battle.playerTwo;
         battleFinished = true;
-        return await this.finishBattle(battle, winner);
+        const finishedBattle = await this.finishBattle(battle, winner);
+        return { battle: finishedBattle, rounds: roundNumber };
       }
     }
 
-    return await this.battleRepository.saveBattle(battle);
+    return { battle: await this.battleRepository.saveBattle(battle), rounds: roundNumber };
   }
 
   // Method to finish the battle and award experience points to both players
   private async finishBattle(battle: Battle, winner: Character): Promise<Battle> {
+    console.log('battle',battle);
     const loser = winner.id === battle.playerOne.id ? battle.playerTwo : battle.playerOne;
 
     battle.winnerId = winner.id;

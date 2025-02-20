@@ -6,32 +6,73 @@ import Cookies from "js-cookie";
 const BattlePage = () => {
   const [searching, setSearching] = useState(false);
   const [battleData, setBattleData] = useState(null);
-  const [battleFinished, setBattleFinished] = useState(false); // Track if the battle is finished
-  const [playerStats, setPlayerStats] = useState(null); // Store player stats after battle
+  const [battleFinished, setBattleFinished] = useState(false);
+  const [playerStats, setPlayerStats] = useState(null);
   const [ownerHp, setOwnerHp] = useState(0);
   const [opponentHp, setOpponentHp] = useState(0);
-  const [currentRound, setCurrentRound] = useState(1);
-  const [battleLogs, setBattleLogs] = useState([]);  
-
   const userId = Cookies.get("userId");
   const battleId = Cookies.get("battleId");
   const characterId = Cookies.get("characterId");
   const navigate = useNavigate();
+  const [rounds, setRounds] = useState(0);
+  const [currentRound, setCurrentRound] = useState(1);
+  const [intervalId, setIntervalId] = useState(null);
+  const [winner, setWinner] = useState(null);
+
+  useEffect(() => {
+    setIntervalId(
+      setInterval(() => {
+        if (currentRound <= rounds) {
+          fetchRoundDetails(currentRound);
+          setCurrentRound(currentRound + 1);
+        } else {
+          clearInterval(intervalId);
+        }
+      }, 1000)
+    );
+
+    return () => clearInterval(intervalId);
+  }, [currentRound, rounds]);
+
+  useEffect(() => {
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const fetchRoundDetails = async (round) => {
+    try {
+      const response = await api.get(
+        `/battle/users/${userId}/characters/${characterId}/battle/${battleId}/round/${round}/status`
+      );
+      setBattleData(response.data);
+      setOwnerHp(response.data.roundLog.attackerHp);
+      setOpponentHp(response.data.roundLog.defenderHp);
+      if (response.data.status === "finished") {
+        setBattleFinished(true);
+        clearInterval(intervalId);
+      }
+      if (response.data.status === "error") {
+        clearInterval(intervalId);
+      }
+    } catch (error) {
+      clearInterval(intervalId);
+      console.error("Error fetching round details:", error);
+    }
+  };
 
   const startBattle = async () => {
     try {
       const res = await api.post(
         `/battle/users/${userId}/characters/${characterId}/battle/${battleId}/round/`
       );
+      setRounds(res.data.rounds);
+      setPlayerStats(res.data.battle);
+      const winner =
+        res.data.battle.winnerId === res.data.battle.playerOne.id
+          ? res.data.battle.playerOne
+          : res.data.battle.playerTwo;
 
-      const response = await api.get(
-        `/battle/users/${userId}/characters/${characterId}/battle/${battleId}/round/status`
-      );
-      setPlayerStats(res.data);
+      setWinner(winner);
       setSearching(false);
-      setBattleData(response.data);
-      setBattleLogs(response.data.battle.logs);
-      setCurrentRound(response.data.currentRound);
     } catch (error) {
       console.error("Error starting battle:", error);
     }
@@ -45,13 +86,6 @@ const BattlePage = () => {
     startBattle();
   }, [battleId]);
 
-  useEffect(() => {
-    if (battleData) {
-      setOwnerHp(playerStats.playerOne.hp);
-      setOpponentHp(playerStats.playerTwo.hp);
-    }
-  }, [battleData]);
-
   return (
     <div>
       {searching ? (
@@ -60,20 +94,20 @@ const BattlePage = () => {
         <div>
           <h2>Battle Finished</h2>
           <div>
-            <h3>Winner: {playerStats.user.username}</h3>
+            <h3>Winner: {winner.user.username}</h3>
             <img
               style={{ width: "100px", height: "100px" }}
-              src={playerStats.imageUrl}
+              src={winner.imageUrl}
               alt="Winner"
             />
-            <p>Class: {playerStats.classType}</p>
-            <p>HP: {playerStats.hp}</p>
-            <p>Gear Score: {playerStats.gearScore}</p>
-            <p>Level: {playerStats.level}</p>
-            <p>XP: {playerStats.xp}</p>
-            <p>Normal Attack: {playerStats.normalAttack}</p>
-            <p>Heavy Attack: {playerStats.heavyAttack}</p>
-            <p>Defense: {playerStats.defense}</p>
+            <p>Class: {winner.classType}</p>
+            <p>HP: {winner.hp}</p>
+            <p>Gear Score: {winner.gearScore}</p>
+            <p>Level: {winner.level}</p>
+            <p>XP: {winner.xp}</p>
+            <p>Normal Attack: {winner.normalAttack}</p>
+            <p>Heavy Attack: {winner.heavyAttack}</p>
+            <p>Defense: {winner.defense}</p>
           </div>
           <button onClick={restartBattle}>Back to Character</button>
         </div>

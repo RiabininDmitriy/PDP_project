@@ -42,7 +42,7 @@ export class BattleRepository extends Repository<Battle> {
   async findBattleWithLogs(battleId: string): Promise<Battle | undefined> {
     return this.findOne({
         where: { id: battleId },
-        relations: ["logs"]
+        relations: ['logs', 'playerOne', 'playerTwo']
     });
   }
 }

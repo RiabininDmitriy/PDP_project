@@ -52,10 +52,6 @@ const UserCharacter = () => {
       `/battle/users/${userId}/opponent/${opponentId}/getBattleId`
     );
     Cookies.set("battleId", battleData.data.id);
-    const res = await api.post(
-      `/battle/users/${userId}/characters/${character.id}/battle/${battleData.data.id}/round/`
-    );
-
     Cookies.set("characterId", character.id);
 
     navigate(`/battle/${battleData.data.id}`);
