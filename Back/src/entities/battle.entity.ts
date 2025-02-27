@@ -1,11 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Character } from './character.entity';
 import { BattleLog } from './battle-log.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class Battle {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ nullable: true })
+  battleCreatorId: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'battleCreatorId' })
+  battleCreator: User;
 
   @ManyToOne(() => Character)
   playerOne: Character;

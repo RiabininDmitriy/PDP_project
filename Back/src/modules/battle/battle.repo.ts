@@ -14,13 +14,14 @@ export class BattleRepository extends Repository<Battle> {
     super(battleRepository.target, battleRepository.manager, battleRepository.queryRunner);
   }
 
-  async createBattle(playerOne: Character, playerTwo: Character): Promise<Battle> {
+  async createBattle(playerOne: Character, playerTwo: Character, battleCreatorId: string): Promise<Battle> {
     // Create a new Battle entity using the provided players and their starting health points
     const battle = this.battleRepository.create({
       playerOne,
       playerTwo,
       playerOneHp: playerOne.hp,
       playerTwoHp: playerTwo.hp,
+      battleCreatorId,
     });
 
     return this.battleRepository.save(battle);

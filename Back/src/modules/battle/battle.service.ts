@@ -30,10 +30,10 @@ export class BattleService {
     private readonly entityManager: EntityManager,
   ) {}
   //change startBattle на createBattle
-  async startBattle(userId: number, opponentId: string): Promise<Battle> {
+  async startBattle(userId: string, opponentId: string): Promise<Battle> {
     const player = await this.characterService.getCharacter(userId);
     const opponent = await this.characterService.getOpponent(opponentId);
-    const battle = await this.battleRepository.createBattle(player, opponent.opponent);
+    const battle = await this.battleRepository.createBattle(player, opponent.opponent, userId);
 
     logger.log(BATTLE_STARTED_MESSAGE, battle);
 
@@ -89,7 +89,7 @@ export class BattleService {
   }
 
   // Method to process a battle round automatically
-  async processBattleRound(battleId: string): Promise<{ battle: Battle; rounds: number }> {
+  async processBattleRound(battleId: string, userId: string): Promise<{ battle: Battle; rounds: number }> {
     const battle = await this.battleRepository.getBattleById(battleId);
 
     if (!battle || battle.winnerId) return { battle, rounds: 0 };

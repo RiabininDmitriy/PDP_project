@@ -14,7 +14,7 @@ export class PersonalGuard implements CanActivate {
 			throw new ForbiddenException('Access denied');
 		}
 	
-		if (Number(user.userId) !== Number(userId)) {
+		if (user.userId !== userId) {
 			throw new ForbiddenException('You can only access your own data');
 		}
 	

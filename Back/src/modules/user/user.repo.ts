@@ -20,7 +20,7 @@ export class UserRepository extends Repository<User> {
     return this.find();
   }
 
-  async getUserById(id: number): Promise<User> {
+  async getUserById(id: string): Promise<User> {
     return this.findOneBy({ id });
   }
 

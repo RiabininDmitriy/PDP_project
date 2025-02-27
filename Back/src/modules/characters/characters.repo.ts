@@ -21,7 +21,7 @@ export class CharactersRepository extends Repository<Character> {
     return this.characterRepository.findOne({ where: { id: characterId } });
   }
 
-  async findCharacterByUserId(userId: number): Promise<Character | null> {
+  async findCharacterByUserId(userId: string): Promise<Character | null> {
     return this.characterRepository.findOne({
       where: { user: { id: userId } },
     });

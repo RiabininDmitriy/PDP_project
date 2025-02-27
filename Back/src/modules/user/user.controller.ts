@@ -24,6 +24,6 @@ export class UserController {
   @Get('/:id')
   async getUser(@Param('id') id: string, @Request() req): Promise<User> {
     this.logger.log('Authenticated user:', { user: req.user });
-    return this.userService.getUserById(+id);
+    return this.userService.getUserById(id);
   }
 }

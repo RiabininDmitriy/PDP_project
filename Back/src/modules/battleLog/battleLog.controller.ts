@@ -10,4 +10,9 @@ export class BattleLogController {
   createBattleLog(@Param('battleId') battleId: string, @Body() battleLogData: Partial<BattleLog>) {
     return this.battleLogService.createBattleLog(battleLogData);
   }
+
+  @Get('user/:userId')
+  getUserBattles(@Param('userId') userId: string) {
+    return this.battleLogService.getUserBattles(userId);
+  }
 }

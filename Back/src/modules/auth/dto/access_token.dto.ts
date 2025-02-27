@@ -1,5 +1,5 @@
 export class AccessTokenDto {
   access_token: string;
-  userId: number;
+  userId: string;
   characterId?: string | null;
 }

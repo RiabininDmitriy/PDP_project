@@ -14,7 +14,7 @@ export class CharacterController {
   @UseGuards(AuthGuard('jwt'), PersonalGuard)
   @Post(':userId')
   async createCharacter(
-    @Param('userId') userId: number,
+    @Param('userId') userId: string,
     @Body() createCharacterDto: CreateCharacterDto,
   ) {
     return this.characterService.createCharacter(userId, createCharacterDto.classType);
@@ -31,7 +31,7 @@ export class CharacterController {
 
   @UseGuards(AuthGuard('jwt'), PersonalGuard)
   @Get(':userId')
-  async getCharacter(@Param('userId', ParseIntPipe) userId: number) {
+  async getCharacter(@Param('userId') userId: string) {
     return this.characterService.getCharacter(userId);
   }
 

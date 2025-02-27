@@ -9,7 +9,55 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100%;
+
+  .get-opponent-button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 20px;
+    width: 50%;
+  }
+
+  .log-out-button {
+    background-color: red;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 20px;
+    width: 20%;
+  }
+
+  .battle-info-button {
+    background-color: yellow;
+    border: none;
+    color: black;
+    padding: 15px 32px;
+    text-align: center;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 20px;
+    width: 35%;
+  }
+
+  .start-battle-button {
+    background-color: blue;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 20px;
+    width: 80%;
+  }
 `;
 
 const Image = styled.img`
@@ -80,7 +128,7 @@ const UserCharacter = () => {
       <p>Level: {character.level}</p>
       <p>GearScore: {character.gearScore}</p>
 
-      <button onClick={handleGetOpponent}>Get Opponent</button>
+      <button className="get-opponent-button" onClick={handleGetOpponent}>Get Opponent</button>
       {opponent.status === "found" && (
         <p>Opponent: {opponent.opponent.user.username}</p>
       )}
@@ -88,10 +136,11 @@ const UserCharacter = () => {
         <p>Opponent GearScore: {opponent.opponent.gearScore}</p>
       )}
       {opponent.status === "found" && (
-        <button onClick={handleStartBattle}>Start Battle</button>
+        <button className="start-battle-button" onClick={handleStartBattle}>Start Battle</button>
       )}
+      <button className="battle-info-button" onClick={() => navigate(`/character/${userId}/battle-info`)}>Battle Info</button>
       <button
-        style={{ marginTop: "40px", backgroundColor: "red" }}
+        className="log-out-button"
         onClick={handleLogOut}
       >
         Log Out

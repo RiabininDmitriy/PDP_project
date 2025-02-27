@@ -2,6 +2,43 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api";
 import Cookies from "js-cookie";
+import styled from "styled-components";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  .back-to-character-button {
+    background-color: #4CAF50; 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 12px;
+    width: 100%;
+  }
+
+  .battle-finished-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .battle-in-progress-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+`;
 
 const BattlePage = () => {
   const [searching, setSearching] = useState(false);
@@ -87,11 +124,11 @@ const BattlePage = () => {
   }, [battleId]);
 
   return (
-    <div>
+    <Container>
       {searching ? (
         <p>Searching for opponent...</p>
       ) : battleFinished ? (
-        <div>
+        <div className="battle-finished-container">
           <h2>Battle Finished</h2>
           <div>
             <h3>Winner: {winner.user.username}</h3>
@@ -109,12 +146,12 @@ const BattlePage = () => {
             <p>Heavy Attack: {winner.heavyAttack}</p>
             <p>Defense: {winner.defense}</p>
           </div>
-          <button onClick={restartBattle}>Back to Character</button>
+          <button className="back-to-character-button" onClick={restartBattle}>Back to Character</button>
         </div>
       ) : battleData ? (
-        <div>
+        <div className="battle-in-progress-container">
           <h2>Battle in Progress</h2>
-          <div style={{ display: "flex", justifyContent: "space-around" }}>
+          <div style={{ display: "flex", justifyContent: "space-around" , gap: "20px"}}>
             <div>
               <h3>Player 1: {playerStats.playerOne.user.username}</h3>
               <img
@@ -154,7 +191,7 @@ const BattlePage = () => {
       ) : (
         <p>Loading battle details...</p>
       )}
-    </div>
+    </Container>
   );
 };
 

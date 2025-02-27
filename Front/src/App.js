@@ -5,6 +5,7 @@ import Register from './components/RegisterPage/Register';
 import CharacterClassList from './components/CharacterClassList/CharacterClassList';
 import UserCharacter from './components/UserCharacter/UserCharacter';
 import BattlePage from './components/BattlePage/BattlePage'; // Import the BattlePage component
+import BattleInfo from './components/BattleInfo/BattleInfo';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/character-classes" element={<CharacterClassList />} />
         <Route path="/character/:userId" element={<UserCharacter />} />
         <Route path="/battle/:battleId" element={<BattlePage />} />
+        <Route path="/character/:userId/battle-info" element={<BattleInfo />} />
       </Routes>
     </Router>
   );

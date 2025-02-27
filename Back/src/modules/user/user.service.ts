@@ -29,7 +29,7 @@ export class UserService {
     return this.userRepository.getUsers();
   }
 
-  async getUserById(id: number) {
+  async getUserById(id: string) {
     this.logger.log('Getting user by id', { id });
     return this.userRepository.getUserById(id);
   }

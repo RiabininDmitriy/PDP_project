@@ -16,7 +16,7 @@ export class CharacterService {
     private readonly userRepository: UserRepository,
   ) {}
 
-  async createCharacter(userId: number, classType: CharacterClass):Promise<Character[]> {
+  async createCharacter(userId: string, classType: CharacterClass):Promise<Character[]> {
     const user = await this.userRepository.getUserById(userId);
 
     if (!user) {
@@ -41,7 +41,7 @@ export class CharacterService {
     return this.charactersRepository.createCharacter(character);
   }
 
-  async getCharacter(userId: number): Promise<Character> {
+  async getCharacter(userId: string): Promise<Character> {
     return this.charactersRepository.findCharacterByUserId(userId);
   }
 

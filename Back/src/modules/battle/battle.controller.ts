@@ -19,7 +19,7 @@ export class BattleController {
   ): Promise<{ battle: Battle; rounds: number }> {
     logger.log('processRound', battleId);
 
-    return await this.battleService.processBattleRound(battleId);
+    return await this.battleService.processBattleRound(battleId, userId);
   }
 
   // This route checks the current status of a battle (whether it's finished or in progress).
@@ -39,7 +39,7 @@ export class BattleController {
   //change  getBattleId на battle/ and change on POST
   @Get('users/:userId/opponent/:opponentId/getBattleId')
   //change getBattleId на createBattle
-  getBattleId(@Param('userId') userId: number, @Param('opponentId') opponentId: string): Promise<Battle> {
+  getBattleId(@Param('userId') userId: string, @Param('opponentId') opponentId: string): Promise<Battle> {
     logger.log('getBattleId', userId);
 
     return this.battleService.startBattle(userId, opponentId);
