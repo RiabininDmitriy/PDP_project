@@ -106,11 +106,13 @@ export class CharacterService {
       return { status: 'error', message: 'Player not found' };
     }
 
+    //Перенєсті сюди 80 і -80 в сервіс
     // Find potential opponents based on gear score
     const opponents = await this.charactersRepository.findOpponents(characterId, player.gearScore);
 
     // If no opponents are found, return 'searching' status
     if (opponents.length === 0) {
+      //move searching and found to constants
       return { status: 'searching' };
     }
 

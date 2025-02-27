@@ -36,7 +36,9 @@ export class BattleController {
   }
 
   @UseGuards(AuthGuard('jwt'), PersonalGuard)
+  //change  getBattleId на battle/ and change on POST
   @Get('users/:userId/opponent/:opponentId/getBattleId')
+  //change getBattleId на createBattle
   getBattleId(@Param('userId') userId: number, @Param('opponentId') opponentId: string): Promise<Battle> {
     logger.log('getBattleId', userId);
 

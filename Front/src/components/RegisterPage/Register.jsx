@@ -1,8 +1,66 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './register.css';
+import styled from 'styled-components';
 import api from '../../api/api';
 import Cookies from 'js-cookie';
+
+const RegisterForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 300px;
+  margin: auto;
+  align-items: center;
+`;
+
+const Input = styled.input`
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
+const Button = styled.button`
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  width: 50%;
+
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+
+const LoginButton = styled(Button)`
+  margin-top: 20px;
+  background-color: #262c7c;
+
+  &:hover {
+    background-color: hsl(261, 42%, 43%);
+  }
+`;
+
+const RegisterContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 90vh;
+`;
+
+const ErrorMessage = styled.div`
+  color: red;
+  margin-top: 10px;
+`;
+
+const RegisterHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100px;
+`;
 
 const Register = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
@@ -31,13 +89,13 @@ const Register = () => {
   };
 
   return (
-    <div className="register-container">
-      <div className='register-header'>
+    <RegisterContainer>
+      <RegisterHeader>
         <h1>Register</h1>
-        {error && <div className="error-message">{error}</div>} 
-      </div>
-      <form onSubmit={handleRegister} className="register-form">
-        <input
+        {error && <ErrorMessage>{error}</ErrorMessage>} 
+      </RegisterHeader>
+      <RegisterForm onSubmit={handleRegister}>
+        <Input
           type="text"
           name="username"
           placeholder="Username"
@@ -45,7 +103,7 @@ const Register = () => {
           onChange={handleInputChange}
           autoComplete="new-password"
         />
-        <input
+        <Input
           type="password"
           name="password"
           placeholder="Password"
@@ -53,11 +111,10 @@ const Register = () => {
           onChange={handleInputChange}
           autoComplete="new-password"
         />
-        <button type="submit">Register</button>
-      </form>
-
-      <button className="login-button" onClick={() => navigate('/login')}>Go to Login</button>
-    </div>
+        <Button type="submit">Register</Button>
+      </RegisterForm>
+      <LoginButton onClick={() => navigate('/login')}>Go to Login</LoginButton>
+    </RegisterContainer>
   );
 };
 

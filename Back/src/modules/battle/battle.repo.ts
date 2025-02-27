@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Battle } from 'src/entities/battle.entity';
 import { Character } from 'src/entities/character.entity';
-import { BattleLog } from 'src/entities/battle-log.entity';
 
 @Injectable()
 export class BattleRepository extends Repository<Battle> {

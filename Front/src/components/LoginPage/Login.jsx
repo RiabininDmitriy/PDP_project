@@ -1,8 +1,66 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import './login.css';
+import styled from 'styled-components';
 import api from '../../api/api';
+
+const LoginForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 300px;
+  margin: auto;
+  align-items: center;
+`;
+
+const Input = styled.input`
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
+const Button = styled.button`
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  width: 50%;
+
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+
+const RegisterButton = styled(Button)`
+  margin-top: 20px;
+  background-color: #008CBA;
+
+  &:hover {
+    background-color: #007BAA;
+  }
+`;
+
+const LoginContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 90vh;
+`;
+
+const ErrorMessage = styled.div`
+  color: red;
+  margin-top: 10px;
+`;
+
+const LoginHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100px;
+`;
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
@@ -42,13 +100,13 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className='login-header'>
+    <LoginContainer>
+      <LoginHeader>
         <h1>Login</h1>
-        {error && <div className="error-message">{error}</div>} 
-      </div>
-      <form onSubmit={handleLogin} className="login-form">
-        <input
+        {error && <ErrorMessage>{error}</ErrorMessage>} 
+      </LoginHeader>
+      <LoginForm onSubmit={handleLogin}>
+        <Input
           type="text"
           name="username"
           placeholder="Username"
@@ -56,7 +114,7 @@ const Login = () => {
           onChange={handleInputChange}
           autoComplete="new-password"
         />
-        <input
+        <Input
           type="password"
           name="password"
           placeholder="Password"
@@ -64,10 +122,10 @@ const Login = () => {
           onChange={handleInputChange}
           autoComplete="new-password"
         />
-        <button type="submit">Login</button>
-      </form>
-      <button onClick={() => navigate('/register')} className="register-button">Go to Register</button>
-    </div>
+        <Button type="submit">Login</Button>
+      </LoginForm>
+      <RegisterButton onClick={() => navigate('/register')}>Go to Register</RegisterButton>
+    </LoginContainer>
   );
 };
 

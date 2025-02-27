@@ -17,17 +17,17 @@ export class CharactersRepository extends Repository<Character> {
     return this.characterRepository.save(character);
   }
 
-  async findCharacterById(characterId: string) {
+  async findCharacterById(characterId: string): Promise<Character | null> {
     return this.characterRepository.findOne({ where: { id: characterId } });
   }
 
-  async findCharacterByUserId(userId: number) {
+  async findCharacterByUserId(userId: number): Promise<Character | null> {
     return this.characterRepository.findOne({
       where: { user: { id: userId } },
     });
   }
 
-  async saveCharacter(character: Character) {
+  async saveCharacter(character: Character): Promise<Character> {
     return this.characterRepository.save(character);
   }
 

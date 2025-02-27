@@ -16,21 +16,20 @@ import {
   LOSER_EXPERIENCE_POINTS,
   WINNER_EXPERIENCE_POINTS,
 } from './constants';
+import { BattleLogService } from '../battleLog/battleLog.service';
 
 @Injectable()
 export class BattleService {
   constructor(
     private readonly battleRepository: BattleRepository,
 
-    // TODO: move logic into repo (BATTLE LOG)
-    @InjectRepository(BattleLog)
-    private readonly battleLogRepository: Repository<BattleLog>,
+    private readonly battleLogService: BattleLogService,
 
     private readonly characterService: CharacterService,
 
     private readonly entityManager: EntityManager,
   ) {}
-
+  //change startBattle на createBattle
   async startBattle(userId: number, opponentId: string): Promise<Battle> {
     const player = await this.characterService.getCharacter(userId);
     const opponent = await this.characterService.getOpponent(opponentId);
@@ -55,10 +54,7 @@ export class BattleService {
     const roundLog = roundLogs.length > 0 ? roundLogs[0] : null;
 
     if (!roundLog) {
-      return {
-        status: BattleStatus.Error,
-        message: 'Round not found',
-      };
+      throw new Error('Round not found');
     }
 
     const isFinished = roundLog.attackerHp <= 0 || roundLog.defenderHp <= 0 ? true : false;
@@ -114,7 +110,7 @@ export class BattleService {
         battle.playerTwoHp = Math.max(0, battle.playerTwoHp - damage);
       }
 
-      let battleLog = this.battleLogRepository.create({
+      let battleLog = await this.battleLogService.createBattleLog({
         battle,
         attacker,
         attackerName: attacker.user.username,
@@ -126,7 +122,7 @@ export class BattleService {
         round: roundNumber,
       });
 
-      await this.battleLogRepository.save(battleLog);
+      await this.battleLogService.saveBattleLog(battleLog);
 
       if (battle.playerOneHp <= 0 || battle.playerTwoHp <= 0) {
         const winner = battle.playerOneHp > 0 ? battle.playerOne : battle.playerTwo;

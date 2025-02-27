@@ -23,6 +23,10 @@ import { BattleController } from './modules/battle/battle.controller';
 import { Battle } from './entities/battle.entity';
 import { BattleLog } from './entities/battle-log.entity';
 import { BattleRepository } from './modules/battle/battle.repo';
+import { BattleLogService } from './modules/battleLog/battleLog.service';
+import { BattleLogRepository } from './modules/battleLog/battleLog.repo';
+import { BattleLogModule } from './modules/battleLog/battleLog.module';
+import { BattleLogController } from './modules/battleLog/battleLog.controller';
 
 dotenv.config();
 @Module({
@@ -44,8 +48,9 @@ dotenv.config();
     AuthModule,
     CharacterModule,
     BattleModule,
+    BattleLogModule,
   ],
-  controllers: [UserController, AuthController, CharacterController, BattleController],
+  controllers: [UserController, AuthController, CharacterController, BattleController, BattleLogController],
   providers: [
     AppService,
     UserService,
@@ -56,6 +61,8 @@ dotenv.config();
     CharactersRepository,
     BattleService,
     BattleRepository,
+    BattleLogService,
+    BattleLogRepository,
   ],
 })
 export class AppModule { }

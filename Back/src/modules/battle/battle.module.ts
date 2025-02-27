@@ -9,10 +9,12 @@ import { Battle } from 'src/entities/battle.entity';
 import { CharacterService } from '../characters/characters.service';
 import { UserModule } from '../user/user.module';
 import { BattleRepository } from './battle.repo';
+import { BattleLogService } from '../battleLog/battleLog.service';
+import { BattleLogRepository } from '../battleLog/battleLog.repo';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Character, BattleLog, Battle]), UserModule],
+    imports: [TypeOrmModule.forFeature([Character, Battle, BattleLog]), UserModule],
     controllers: [BattleController],
-    providers: [BattleService, CharactersRepository, CharacterService, BattleRepository],
+    providers: [BattleService, CharactersRepository, CharacterService, BattleRepository, BattleLogService, BattleLogRepository],
   })
   export class BattleModule {}
