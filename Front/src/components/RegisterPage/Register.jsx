@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import api from '../../api/api';
@@ -87,6 +87,14 @@ const Register = () => {
       }
     }
   };
+
+  useEffect(() => {
+    Cookies.remove('token');
+    Cookies.remove('userId');
+    Cookies.remove('characterId');
+    Cookies.remove('battleData');
+    Cookies.remove('battleId');
+  }, []);
 
   return (
     <RegisterContainer>

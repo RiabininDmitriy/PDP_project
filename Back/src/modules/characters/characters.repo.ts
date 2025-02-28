@@ -31,10 +31,10 @@ export class CharactersRepository extends Repository<Character> {
     return this.characterRepository.save(character);
   }
 
-  async findOpponents(characterId: string, gearScore: number): Promise<Character[]> {
+  async findOpponents(characterId: string, minGearScore: number, maxGearScore: number): Promise<Character[]> {
     return this.characterRepository.find({
       where: {
-        gearScore: Between(gearScore - 80, gearScore + 80),
+        gearScore: Between(minGearScore, maxGearScore),
         id: Not(characterId),
       },
     });

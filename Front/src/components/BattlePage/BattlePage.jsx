@@ -12,7 +12,7 @@ const Container = styled.div`
   height: 100%;
 
   .back-to-character-button {
-    background-color: #4CAF50; 
+    background-color: #4caf50;
     border: none;
     color: white;
     padding: 15px 32px;
@@ -35,6 +35,40 @@ const Container = styled.div`
   .battle-in-progress-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .battle-log-container {
+    flex: 1 0 30%;
+    margin: 5px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+
+  .winner-image {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+  }
+
+  .battle-in-progress-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .player-image {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+  }
+
+  .battle-in-progress {
+    display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 20px;
   }
@@ -115,7 +149,8 @@ const BattlePage = () => {
     }
   };
 
-  const restartBattle = () => {
+  const backToCharacter = () => {
+    clearInterval(intervalId);
     navigate(`/character/${userId}`);
   };
 
@@ -132,11 +167,7 @@ const BattlePage = () => {
           <h2>Battle Finished</h2>
           <div>
             <h3>Winner: {winner.user.username}</h3>
-            <img
-              style={{ width: "100px", height: "100px" }}
-              src={winner.imageUrl}
-              alt="Winner"
-            />
+            <img className="winner-image" src={winner.imageUrl} alt="Winner" />
             <p>Class: {winner.classType}</p>
             <p>HP: {winner.hp}</p>
             <p>Gear Score: {winner.gearScore}</p>
@@ -146,16 +177,18 @@ const BattlePage = () => {
             <p>Heavy Attack: {winner.heavyAttack}</p>
             <p>Defense: {winner.defense}</p>
           </div>
-          <button className="back-to-character-button" onClick={restartBattle}>Back to Character</button>
+          <button className="back-to-character-button" onClick={backToCharacter}>
+            Back to Character
+          </button>
         </div>
       ) : battleData ? (
         <div className="battle-in-progress-container">
           <h2>Battle in Progress</h2>
-          <div style={{ display: "flex", justifyContent: "space-around" , gap: "20px"}}>
+          <div className="battle-in-progress">
             <div>
               <h3>Player 1: {playerStats.playerOne.user.username}</h3>
               <img
-                style={{ width: "100px", height: "100px" }}
+                className="player-image"
                 src={playerStats.playerOne.imageUrl}
                 alt="Player 1"
               />
@@ -172,7 +205,7 @@ const BattlePage = () => {
             <div>
               <h3>Player 2: {playerStats.playerTwo.user.username}</h3>
               <img
-                style={{ width: "100px", height: "100px" }}
+                className="player-image"
                 src={playerStats.playerTwo.imageUrl}
                 alt="Player 2"
               />
@@ -186,6 +219,23 @@ const BattlePage = () => {
               <p>Heavy Attack: {playerStats.playerTwo.heavyAttack}</p>
               <p>Defense: {playerStats.playerTwo.defense}</p>
             </div>
+          </div>
+
+          <div className="battle-log-container">
+            Раунд: {battleData.round}
+            <p>
+              {battleData.roundLog.attackerName} вдарив{" "}
+              {battleData.roundLog.defenderName}
+            </p>
+            <p>Завдано урону: {battleData.roundLog.damage}</p>
+            <p>
+              Здоров'я {battleData.roundLog.attackerName}:{" "}
+              {battleData.roundLog.attackerHp}
+            </p>
+            <p>
+              Здоров'я {battleData.roundLog.defenderName}:{" "}
+              {battleData.roundLog.defenderHp}
+            </p>
           </div>
         </div>
       ) : (

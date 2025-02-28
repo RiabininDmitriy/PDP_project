@@ -42,8 +42,10 @@ const CharacterClassList = () => {
   useEffect(() => {
     const fetchCharacterClasses = async () => {
       try {
-        const response = await api.get('/characters/classes');
-        setCharacterClasses(response.data);
+        setTimeout(async () => {
+          const response = await api.get('/characters/classes');
+          setCharacterClasses(response.data);
+        }, 200);
       } catch (error) {
         console.error('Error fetching character classes', error);
       }
@@ -56,7 +58,7 @@ const CharacterClassList = () => {
     try {
       const userId = Cookies.get('userId');
       await api.post(`/characters/${userId}`, { classType });
-      navigate(`/character/${userId}`); // Redirect to the user's character page
+      navigate(`/character/${userId}`);
     } catch (error) {
       console.error('Error creating character', error);
     }

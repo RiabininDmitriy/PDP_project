@@ -1,8 +1,9 @@
 import styled from "styled-components";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import api from "../../api/api";
 import { useNavigate } from "react-router-dom";
+import BattleComponent from "./BattleComponent";
 const BattleInfoContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -18,14 +19,22 @@ const BattleInfoContainer = styled.div`
     border-radius: 12px;
     cursor: pointer;
     margin-top: 20px;
-    width: 20%;
+    width: 100%;
     font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .battle-info-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 `;
 
 const BattleInfo = () => {
   const userId = Cookies.get('userId');
   const navigate = useNavigate();
+  const [battles, setBattles] = useState([]);
 
   const handleBack = () => {
     navigate(`/character/${userId}`);
@@ -33,7 +42,7 @@ const BattleInfo = () => {
 
   const getAllBattles = async () => {
     const response = await api.get(`/battle-logs/user/${userId}`);
-   
+    setBattles(response.data);
     console.log(response);
   };
 
@@ -43,8 +52,14 @@ const BattleInfo = () => {
 
   return (
     <BattleInfoContainer>
-      <h1>Battle Info</h1>
-      <button className="back-button" onClick={handleBack}>return to character</button>
+      <div className="battle-info-container">
+        <h1>Battle Info</h1>
+        <button className="back-button" onClick={handleBack}>return to character</button>
+      </div>
+
+      {battles.length > 0 && battles.map((battle) => (
+        <BattleComponent key={battle.id} battleData={battle} />
+      ))}
     </BattleInfoContainer>
   );
 };

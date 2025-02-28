@@ -91,13 +91,16 @@ const UserCharacter = () => {
     Cookies.remove("userId");
     Cookies.remove("token");
     Cookies.remove("user");
+    Cookies.remove('characterId');
+    Cookies.remove('battleData');
+    Cookies.remove('battleId');
     navigate("/");
   };
 
   const handleStartBattle = async () => {
     const opponentId = opponent.opponent.id;
-    const battleData = await api.get(
-      `/battle/users/${userId}/opponent/${opponentId}/getBattleId`
+    const battleData = await api.post(
+      `/battle/users/${userId}/opponent/${opponentId}/battle`
     );
     Cookies.set("battleId", battleData.data.id);
     Cookies.set("characterId", character.id);

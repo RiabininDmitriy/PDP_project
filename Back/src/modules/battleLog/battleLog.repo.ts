@@ -33,11 +33,5 @@ export class BattleLogRepository extends Repository<BattleLog> {
         round: 'ASC',
       },
     });
-    // return await this.battleLogRepository.query(`
-    //   SELECT * FROM battle_log
-    //   LEFT JOIN battle ON battle_log."battleId" = battle.id
-    //   WHERE battle."battleCreatorId" = $1
-    //   ORDER BY battle_log."round" ASC;
-    // `, [userId]);
   }
 }

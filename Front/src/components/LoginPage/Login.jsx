@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
@@ -72,6 +72,14 @@ const Login = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  useEffect(() => {
+    Cookies.remove('token');
+    Cookies.remove('userId');
+    Cookies.remove('characterId');
+    Cookies.remove('battleData');
+    Cookies.remove('battleId');
+  }, []);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -86,9 +94,13 @@ const Login = () => {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       if (characterId) {
-        navigate(`/character/${userId}`);
+        setTimeout(() => {
+          navigate(`/character/${userId}`);
+        }, 200);
       } else {
-        navigate('/character-classes');
+        setTimeout(() => {
+          navigate('/character-classes');
+        }, 200);
       }
     } catch (error) {
       if (error.response && error.response.data) {

@@ -10,7 +10,6 @@ import { Battle } from 'src/entities/battle.entity';
 export class BattleController {
   constructor(private readonly battleService: BattleService) { }
 
-  // This route processes a battle round by calculating damage and updating the battle status.
   @UseGuards(AuthGuard('jwt'), PersonalGuard)
   @Post('users/:userId/characters/:characterId/battle/:battleId/round')
   async processRound(
@@ -22,7 +21,6 @@ export class BattleController {
     return await this.battleService.processBattleRound(battleId, userId);
   }
 
-  // This route checks the current status of a battle (whether it's finished or in progress).
   @UseGuards(AuthGuard('jwt'), PersonalGuard)
   @Get('users/:userId/characters/:characterId/battle/:battleId/round/:currentRound/status')
   async getBattleStatus(
@@ -36,11 +34,9 @@ export class BattleController {
   }
 
   @UseGuards(AuthGuard('jwt'), PersonalGuard)
-  //change  getBattleId на battle/ and change on POST
-  @Get('users/:userId/opponent/:opponentId/getBattleId')
-  //change getBattleId на createBattle
-  getBattleId(@Param('userId') userId: string, @Param('opponentId') opponentId: string): Promise<Battle> {
-    logger.log('getBattleId', userId);
+  @Post('users/:userId/opponent/:opponentId/battle')
+  createBattle(@Param('userId') userId: string, @Param('opponentId') opponentId: string): Promise<Battle> {
+    logger.log('createBattle', userId);
 
     return this.battleService.startBattle(userId, opponentId);
   }

@@ -8,6 +8,7 @@ import { calculateGearScore } from 'src/utils/utils';
 import { CharactersRepository } from './characters.repo';
 import { EntityManager } from 'typeorm';
 import { FindOpponentResponseDto } from './dto/characters.dto';
+import { FOUND_STATUS, GEAR_SCORE_RANGE, SEARCHING_STATUS } from './characters.constants';
 
 @Injectable()
 export class CharacterService {
@@ -103,23 +104,20 @@ export class CharacterService {
 
     if (!player) {
       logger.error('Player not found');
-      return { status: 'error', message: 'Player not found' };
+      throw new Error('Player not found');
     }
 
-    //Перенєсті сюди 80 і -80 в сервіс
-    // Find potential opponents based on gear score
-    const opponents = await this.charactersRepository.findOpponents(characterId, player.gearScore);
+    const minGearScore = player.gearScore - GEAR_SCORE_RANGE;
+    const maxGearScore = player.gearScore + GEAR_SCORE_RANGE;
 
-    // If no opponents are found, return 'searching' status
+    const opponents = await this.charactersRepository.findOpponents(characterId, minGearScore, maxGearScore);
+
     if (opponents.length === 0) {
-      //move searching and found to constants
-      return { status: 'searching' };
+      return { status: SEARCHING_STATUS };
     }
-
-    // Randomly select an opponent
     const randomOpponent = opponents[Math.floor(Math.random() * opponents.length)];
 
-    return { status: 'found', opponent: randomOpponent };
+    return { status: FOUND_STATUS, opponent: randomOpponent };
   }
 
   async getWinnerName(winnerId: string): Promise<string | null>  {

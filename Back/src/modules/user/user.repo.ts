@@ -24,13 +24,11 @@ export class UserRepository extends Repository<User> {
     return this.findOneBy({ id });
   }
 
-  //add index on password (if this method needed because of performance issues)
   async getUserByLoginAndPassword(username: string, password: string): Promise<User> {
     return this.findOne({ where: { username, password } });
   }
 
   async getUserByUsername(username: string): Promise<User> {
-    // This method will automatically use the index on `username` if it's properly set in the entity
     return this.findOne({ where: { username } });
   }
 }
