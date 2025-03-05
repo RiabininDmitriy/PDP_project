@@ -11,10 +11,10 @@ import { UserModule } from '../user/user.module';
 import { BattleRepository } from './battle.repo';
 import { BattleLogService } from '../battleLog/battleLog.service';
 import { BattleLogRepository } from '../battleLog/battleLog.repo';
-
+import { WinstonLoggerService } from 'src/utils/logger.service';
 @Module({
     imports: [TypeOrmModule.forFeature([Character, Battle, BattleLog]), UserModule],
     controllers: [BattleController],
-    providers: [BattleService, CharactersRepository, CharacterService, BattleRepository, BattleLogService, BattleLogRepository],
+    providers: [BattleService, CharactersRepository, CharacterService, BattleRepository, BattleLogService, BattleLogRepository, WinstonLoggerService],
   })
   export class BattleModule {}

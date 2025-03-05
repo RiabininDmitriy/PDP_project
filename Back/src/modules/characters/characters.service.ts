@@ -2,32 +2,35 @@ import { Injectable } from '@nestjs/common';
 import { Character } from 'src/entities/character.entity';
 import { UserRepository } from '../user/user.repo';
 import { CHARACTER_CLASSES } from './config/character-classes.config';
-import { logger } from 'src/utils/logger.service';
+import { logger, WinstonLoggerService } from 'src/utils/logger.service';
 import { CharacterClass } from '../../entities/utils/characters.types';
 import { calculateGearScore } from 'src/utils/utils';
 import { CharactersRepository } from './characters.repo';
 import { EntityManager } from 'typeorm';
 import { FindOpponentResponseDto } from './dto/characters.dto';
-import { FOUND_STATUS, GEAR_SCORE_RANGE, SEARCHING_STATUS } from './characters.constants';
+import { FOUND_STATUS, GEAR_SCORE_RANGE, SEARCHING_STATUS, FINDING_OPPONENT_AND_START_BATTLE, PLAYER_NOT_FOUND, INVALID_CLASS_TYPE, CHARACTER_NOT_FOUND } from './constants';
 
 @Injectable()
 export class CharacterService {
   constructor(
     private readonly charactersRepository: CharactersRepository,
     private readonly userRepository: UserRepository,
-  ) {}
+    private readonly logger: WinstonLoggerService,
+  ) {
+    this.logger.setContext('CharacterService');
+  }
 
   async createCharacter(userId: string, classType: CharacterClass):Promise<Character[]> {
     const user = await this.userRepository.getUserById(userId);
 
     if (!user) {
-      logger.error('User not found');
+      this.logger.error(PLAYER_NOT_FOUND, userId);
       throw new Error('User not found');
     }
 
     const characterAttributes = CHARACTER_CLASSES[classType];
     if (!characterAttributes) {
-      logger.error(`Invalid class type: ${classType}`);
+      this.logger.error(INVALID_CLASS_TYPE, classType);
       throw new Error('Invalid class type');
     }
 
@@ -47,9 +50,7 @@ export class CharacterService {
   }
 
   private getXpThreshold(level: number): number {
-    // Calculates the XP threshold needed for each level, increasing the requirements with each level
-
-    return Math.floor(100 * Math.pow(1.2, level - 1)); // Each level requires more XP
+    return Math.floor(100 * Math.pow(1.2, level - 1));
   }
 
   private levelUpCharacter(character: Character, levelsGained: number) {
@@ -67,7 +68,8 @@ export class CharacterService {
     const character = await manager.findOne(Character, { where: { id: characterId } });
   
     if (!character) {
-      throw new Error('Character not found');
+      this.logger.error(CHARACTER_NOT_FOUND, characterId);
+      throw new Error(CHARACTER_NOT_FOUND);
     }
   
     character.xp += xpGained;
@@ -100,11 +102,11 @@ export class CharacterService {
 
   async getOpponent(characterId: string): Promise<FindOpponentResponseDto> {
     const player = await this.charactersRepository.findCharacterById(characterId);
-    logger.log('findOpponentAndStartBattle', characterId);
+    this.logger.log(`${FINDING_OPPONENT_AND_START_BATTLE} ${characterId}`);
 
     if (!player) {
-      logger.error('Player not found');
-      throw new Error('Player not found');
+      this.logger.error(PLAYER_NOT_FOUND, characterId);
+      throw new Error(PLAYER_NOT_FOUND);
     }
 
     const minGearScore = player.gearScore - GEAR_SCORE_RANGE;

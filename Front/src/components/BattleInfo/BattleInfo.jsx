@@ -41,7 +41,7 @@ const BattleInfo = () => {
   };
 
   const getAllBattles = async () => {
-    const response = await api.get(`/battle-logs/user/${userId}`);
+    const response = await api.get(`/battle-logs/users/${userId}`);
     setBattles(response.data);
     console.log(response);
   };

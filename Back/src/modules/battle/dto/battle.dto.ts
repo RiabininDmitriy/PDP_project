@@ -2,7 +2,6 @@ import { IsString, IsUUID, IsOptional } from 'class-validator';
 import { BattleLog } from 'src/entities/battle-log.entity';
 import { Battle } from 'src/entities/battle.entity';
 
-// DTO for findOpponent route
 export class FindOpponentDto {
   @IsUUID()
   userId: string;
@@ -10,8 +9,6 @@ export class FindOpponentDto {
   @IsUUID()
   characterId: string;
 }
-
-// DTO for battle status route
 export class BattleStatusDto {
   @IsUUID()
   battleId: string;
@@ -19,8 +16,6 @@ export class BattleStatusDto {
   @IsUUID()
   userId: string;
 }
-
-// DTO for battle round route
 export class ProcessRoundDto {
   @IsUUID()
   battleId: string;
@@ -28,8 +23,6 @@ export class ProcessRoundDto {
   @IsUUID()
   userId: string;
 }
-
-// Response DTO for battle status
 
 export class FindOpponentResponseDto {
   @IsString()
@@ -97,4 +90,26 @@ export class BattleStatusResponseDto {
     experienceGained: number;
     currentLevel: number;
   };
+}
+
+export class BattleDto {
+  id: string;
+  battleCreatorId: string;
+  playerOneId: string;
+  playerOneHp: number;
+  playerTwoId: string;
+  playerTwoHp: number;
+  winnerId?: string;
+  winnerName?: string;
+
+  constructor(battle: Battle) {
+      this.id = battle.id;
+      this.battleCreatorId = battle.battleCreatorId;
+      this.playerOneId = battle.playerOne.id;
+      this.playerOneHp = battle.playerOneHp;
+      this.playerTwoId = battle.playerTwo.id;
+      this.playerTwoHp = battle.playerTwoHp;
+      this.winnerId = battle.winnerId;
+      this.winnerName = battle.winnerName;
+  }
 }

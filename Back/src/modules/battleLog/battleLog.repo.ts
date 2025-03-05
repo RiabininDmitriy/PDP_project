@@ -21,7 +21,7 @@ export class BattleLogRepository extends Repository<BattleLog> {
 		return this.battleLogRepository.save(battleLog);
 	}
 
-  async findBattlesByUserId(userId: string): Promise<BattleLog[]> {
+  async findBattlesByUserIdASC(userId: string): Promise<BattleLog[]> {
     return await this.battleLogRepository.find({
       where: {
         battle: {

@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { LoggerService } from '@nestjs/common';
+import { Injectable, LoggerService, Scope } from '@nestjs/common';
 import { createLogger, transports, format } from 'winston';
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 export class WinstonLoggerService implements LoggerService {
+  private context?: string;
   private logger = createLogger({
     transports: [
       new transports.Console({
@@ -22,24 +22,40 @@ export class WinstonLoggerService implements LoggerService {
     ],
   });
 
-  log(message: string, context?: any) {
-    this.logger.info(message, { context });
+  setContext(context: string) {
+    this.context = context;
   }
 
-  error(message: string, trace?: string) {
-    this.logger.error(`${message} - ${trace}`);
+  private parseContext(): string {
+    const stack = new Error().stack;
+    const stackLines = stack.split('\n');
+    const callerLine = stackLines[3];
+    return callerLine;
+  }
+
+  log(message: string) {
+    const logContext = this.parseContext();
+    this.logger.info(message, { context: this.context || 'Unknown' });
+  }
+
+  error(message: string, trace: string) {
+    const logContext = this.parseContext();
+    this.logger.error(`${message} - ${trace}`, { context: this.context || 'Unknown' });
   }
 
   warn(message: string) {
-    this.logger.warn(message);
+    const logContext = this.parseContext();
+    this.logger.warn(message, { context: this.context || 'Unknown' });
   }
 
   debug(message: string) {
-    this.logger.debug(message);
+    const logContext = this.parseContext();
+    this.logger.debug(message, { context: this.context || 'Unknown' });
   }
 
   verbose(message: string) {
-    this.logger.verbose(message);
+    const logContext = this.parseContext();
+    this.logger.verbose(message, { context: this.context || 'Unknown' });
   }
 }
 

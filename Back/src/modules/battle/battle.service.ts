@@ -5,15 +5,17 @@ import { Battle } from 'src/entities/battle.entity';
 import { BattleLog } from 'src/entities/battle-log.entity';
 import { Character } from 'src/entities/character.entity';
 import { CharacterService } from '../characters/characters.service';
-import { logger } from 'src/utils/logger.service';
+import { logger, WinstonLoggerService } from 'src/utils/logger.service';
 import { BattleRepository } from './battle.repo';
-import { BattleStatus, BattleStatusResponseDto } from './dto/battle.dto';
+import { BattleStatus, BattleStatusResponseDto, BattleDto } from './dto/battle.dto';
 import {
   BATTLE_FINISHED_MESSAGE,
   BATTLE_IN_PROGRESS_MESSAGE,
   BATTLE_NOT_FOUND_MESSAGE,
   BATTLE_STARTED_MESSAGE,
   LOSER_EXPERIENCE_POINTS,
+  PROCESSING_BATTLE_ROUND,
+  ROUND_NOT_FOUND_MESSAGE,
   WINNER_EXPERIENCE_POINTS,
 } from './constants';
 import { BattleLogService } from '../battleLog/battleLog.service';
@@ -28,24 +30,29 @@ export class BattleService {
     private readonly characterService: CharacterService,
 
     private readonly entityManager: EntityManager,
-  ) {}
-  //change startBattle на createBattle
-  async startBattle(userId: string, opponentId: string): Promise<Battle> {
+
+    private readonly logger: WinstonLoggerService,
+  ) {
+    this.logger.setContext('BattleService');
+  }
+  
+  async createBattle(userId: string, opponentId: string): Promise<BattleDto> {
     const player = await this.characterService.getCharacter(userId);
     const opponent = await this.characterService.getOpponent(opponentId);
     const battle = await this.battleRepository.createBattle(player, opponent.opponent, userId);
 
-    logger.log(BATTLE_STARTED_MESSAGE, battle);
+    this.logger.log(`${BATTLE_STARTED_MESSAGE} ${battle}`);
+    const battleDto = new BattleDto(battle);
 
-    return battle;
+    return battleDto;
   }
 
   // Method to get the status of a battle by battleId and currentRound
   async getBattleStatus(battleId: string, currentRound: number): Promise<BattleStatusResponseDto> {
     const battle = await this.battleRepository.findBattleWithLogs(battleId);
     if (!battle) {
-      logger.error(BATTLE_NOT_FOUND_MESSAGE);
-      return { status: BattleStatus.Error, message: BATTLE_NOT_FOUND_MESSAGE };
+      this.logger.error(BATTLE_NOT_FOUND_MESSAGE, battleId);
+      throw new Error(BATTLE_NOT_FOUND_MESSAGE);
     }
 
     const battleLogs = Array.isArray(battle.logs) ? battle.logs : [];
@@ -54,7 +61,8 @@ export class BattleService {
     const roundLog = roundLogs.length > 0 ? roundLogs[0] : null;
 
     if (!roundLog) {
-      throw new Error('Round not found');
+      this.logger.error(ROUND_NOT_FOUND_MESSAGE, `currentRound: ${currentRound}`);
+      throw new Error(ROUND_NOT_FOUND_MESSAGE);
     }
 
     const isFinished = roundLog.attackerHp <= 0 || roundLog.defenderHp <= 0 ? true : false;
@@ -88,8 +96,8 @@ export class BattleService {
     };
   }
 
-  // Method to process a battle round automatically
   async processBattleRound(battleId: string, userId: string): Promise<{ battle: Battle; rounds: number }> {
+    this.logger.log(`${PROCESSING_BATTLE_ROUND} ${battleId}`);
     const battle = await this.battleRepository.getBattleById(battleId);
 
     if (!battle || battle.winnerId) return { battle, rounds: 0 };
@@ -150,7 +158,7 @@ export class BattleService {
       return battle;
     });
 
-    logger.log(BATTLE_FINISHED_MESSAGE, transactionResult);
+    this.logger.log(`${BATTLE_FINISHED_MESSAGE} ${transactionResult}`);
 
     return transactionResult;
   }

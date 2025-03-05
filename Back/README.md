@@ -9,8 +9,4 @@ DB:
 2. For run migration: `npm run migration:run`
 3. For revert migration: `npm run migration:revert`
 
-add new test user:
-` ./add_random_user.sh`
 
-If permission denied:
-`ssh-add ~/.ssh/id_ed25519`
