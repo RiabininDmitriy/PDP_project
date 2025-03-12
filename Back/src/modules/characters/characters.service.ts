@@ -20,7 +20,14 @@ export class CharacterService {
     this.logger.setContext('CharacterService');
   }
 
-  async createCharacter(userId: string, classType: CharacterClass):Promise<Character[]> {
+  public formatCharacterClasses() {
+    return Object.keys(CHARACTER_CLASSES).map(classType => ({
+        classType,
+        attributes: CHARACTER_CLASSES[classType],
+    }));
+  }
+
+  public async createCharacter(userId: string, classType: CharacterClass):Promise<Character[]> {
     const user = await this.userRepository.getUserById(userId);
 
     if (!user) {
@@ -45,7 +52,7 @@ export class CharacterService {
     return this.charactersRepository.createCharacter(character);
   }
 
-  async getCharacter(userId: string): Promise<Character> {
+  public async getCharacter(userId: string): Promise<Character> {
     return this.charactersRepository.findCharacterByUserId(userId);
   }
 

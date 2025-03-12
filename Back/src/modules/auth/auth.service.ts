@@ -6,7 +6,6 @@ import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/user.entity';
 import { AccessTokenDto, LoginUserDto } from './dto/auth.dto';
 import { WinstonLoggerService } from 'src/utils/logger.service';
-import { SALT_ROUNDS } from 'src/utils/constants';
 import { CHECKING_PASSWORD, ENCRYPTING_PASSWORD, GENERATING_ACCESS_TOKEN, INVALID_CREDENTIALS, REGISTERING_USER, USER_AUTHENTICATED_SUCCESSFULLY } from './constants';
 import { INVALID_PASSWORD } from './constants';
 
@@ -37,7 +36,7 @@ export class AuthService {
 
   private async encryptPassword(password: string): Promise<string> {
     this.logger.log(`${ENCRYPTING_PASSWORD}: ${password}`);
-    return bcrypt.hash(password, SALT_ROUNDS);
+    return bcrypt.hash(password, process.env.SALT_ROUNDS);
   }
 
   private async authenticateUser(loginUserDto: LoginUserDto): Promise<User> {

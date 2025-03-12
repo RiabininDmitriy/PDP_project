@@ -5,13 +5,12 @@ import { AuthService } from './auth.service';
 import { UserModule } from '../user/user.module';
 import { JwtStrategy } from './jwt.strategy';
 import { WinstonLoggerService } from 'src/utils/logger.service';
-import { JWT_SECRET } from 'src/utils/constants';
 
 @Module({
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: JWT_SECRET,
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
     UserModule,

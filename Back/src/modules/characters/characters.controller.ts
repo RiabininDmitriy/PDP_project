@@ -26,10 +26,8 @@ export class CharacterController {
   @Get('/classes')
   getCharacterClasses() {
     this.logger.log(GETTING_CHARACTER_CLASSES);
-    return Object.keys(CHARACTER_CLASSES).map((classType) => ({
-      classType,
-      attributes: CHARACTER_CLASSES[classType],
-    }));
+    
+    return this.characterService.formatCharacterClasses();
   }
 
   @UseGuards(AuthGuard('jwt'), PersonalGuard)
