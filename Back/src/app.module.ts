@@ -27,22 +27,16 @@ import { BattleLogService } from './modules/battleLog/battleLog.service';
 import { BattleLogRepository } from './modules/battleLog/battleLog.repo';
 import { BattleLogModule } from './modules/battleLog/battleLog.module';
 import { BattleLogController } from './modules/battleLog/battleLog.controller';
+import { AppDataSource } from './data-source';
 
 dotenv.config();
 @Module({
   imports: [
-    TypeOrmModule.forRoot(
-      {
-        type: process.env.DB_TYPE as 'postgres',
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT, 10),
-        username: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_DATABASE,
-        entities: [User, Character, Battle, BattleLog],
-        synchronize: false,
-      }
-    ),
+    TypeOrmModule.forRootAsync({
+      useFactory: async () => ({
+        ...AppDataSource.options
+      }),
+    }),
     TypeOrmModule.forFeature([User, Character, Battle, BattleLog]),
     UserModule,
     AuthModule,
