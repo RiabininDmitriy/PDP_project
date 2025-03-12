@@ -1,12 +1,11 @@
 import { Controller, Post, Body, Get, Param, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { CharacterService } from './characters.service';
 import { CHARACTER_CLASSES } from './config/character-classes.config';
-import { CreateCharacterDto, FindOpponentResponseDto, GetOpponentDto } from './dto/characters.dto';
+import { CharacterClassDto, CreateCharacterDto, FindOpponentResponseDto, GetCharacterDto, GetOpponentDto } from './dto/characters.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { PersonalGuard } from 'src/utils/auth/guards/personal_guard';
 import { logger, WinstonLoggerService } from 'src/utils/logger.service';
 import { FINDING_OPPONENT, GETTING_CHARACTER, GETTING_CHARACTER_CLASSES } from './constants';
-
 @Controller('characters')
 export class CharacterController {
   constructor(private readonly characterService: CharacterService, private readonly logger: WinstonLoggerService) {
@@ -24,7 +23,7 @@ export class CharacterController {
 
   @UseGuards(AuthGuard('jwt'), PersonalGuard)
   @Get('/classes')
-  getCharacterClasses() {
+  getCharacterClasses(): CharacterClassDto[] {
     this.logger.log(GETTING_CHARACTER_CLASSES);
     
     return this.characterService.formatCharacterClasses();
@@ -32,7 +31,7 @@ export class CharacterController {
 
   @UseGuards(AuthGuard('jwt'), PersonalGuard)
   @Get(':userId')
-  async getCharacter(@Param('userId') userId: string) {
+  async getCharacter(@Param('userId') userId: string): Promise<GetCharacterDto> {
     this.logger.log(`${GETTING_CHARACTER} ${userId}`);
     return this.characterService.getCharacter(userId);
   }
