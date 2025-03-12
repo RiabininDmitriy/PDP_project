@@ -6,17 +6,23 @@ import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/user.entity';
 import { AccessTokenDto, LoginUserDto } from './dto/auth.dto';
 import { WinstonLoggerService } from 'src/utils/logger.service';
-import { CHECKING_PASSWORD, ENCRYPTING_PASSWORD, GENERATING_ACCESS_TOKEN, INVALID_CREDENTIALS, REGISTERING_USER, USER_AUTHENTICATED_SUCCESSFULLY } from './constants';
+import { CHECKING_PASSWORD, ENCRYPTING_PASSWORD, GENERATING_ACCESS_TOKEN, INVALID_CREDENTIALS, REGISTERING_USER, SALT_ROUNDS_ERROR, USER_AUTHENTICATED_SUCCESSFULLY } from './constants';
 import { INVALID_PASSWORD } from './constants';
 
 @Injectable()
 export class AuthService {
+  private readonly saltRounds: number;
+
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly logger: WinstonLoggerService,
   ) { 
     this.logger.setContext('AuthService');
+    this.saltRounds = parseInt(process.env.SALT_ROUNDS, 10);
+    if (isNaN(this.saltRounds)) {
+      throw new Error(SALT_ROUNDS_ERROR);
+    }
   }
 
   async registerUser(loginUserDto: LoginUserDto): Promise<User> {
@@ -35,8 +41,8 @@ export class AuthService {
   }
 
   private async encryptPassword(password: string): Promise<string> {
-    this.logger.log(`${ENCRYPTING_PASSWORD}: ${password}`);
-    return bcrypt.hash(password, process.env.SALT_ROUNDS);
+    this.logger.log(`${ENCRYPTING_PASSWORD}`);
+    return bcrypt.hash(password, this.saltRounds);
   }
 
   private async authenticateUser(loginUserDto: LoginUserDto): Promise<User> {
@@ -59,7 +65,7 @@ export class AuthService {
   }
 
   private async isPasswordValid(providedPassword: string, storedPassword: string): Promise<boolean> {
-    this.logger.log(`${CHECKING_PASSWORD} ${providedPassword} ${storedPassword}`);
+    this.logger.log(`${CHECKING_PASSWORD}`);
     return bcrypt.compare(providedPassword, storedPassword);
   }
 
