@@ -9,4 +9,4 @@ DB:
 2. For run migration: `npm run migration:run`
 3. For revert migration: `npm run migration:revert`
 
-
+ssh-add ~/.ssh/id_ed25519

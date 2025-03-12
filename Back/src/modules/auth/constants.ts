@@ -11,3 +11,4 @@ export const CHECKING_PASSWORD = 'Checking password';
 export const GENERATING_ACCESS_TOKEN = 'Generating access token';
 export const REGISTERING_USER = 'Registering user';
 export const ENCRYPTING_PASSWORD = 'Encrypting password';
+export const SALT_ROUNDS_ERROR = 'Invalid SALT_ROUNDS value';

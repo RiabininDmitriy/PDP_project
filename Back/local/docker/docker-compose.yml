@@ -1,8 +1,7 @@
-version: '3.8'
 services:
   postgres:
-    image: postgres:14
-    container_name: postgres
+    image: postgres:16
+    container_name: pdp
     environment:
       POSTGRES_USER: testUser
       POSTGRES_PASSWORD: password
